@@ -1,18 +1,15 @@
-PROJECT_DIR = path.getabsolute('..')
+PROJECT_DIR = path.getabsolute('.')
 
 -- toolchain
 
 -- 
-solution "newgame"
-	configurations {
-		"Debug",
-		"Release",
-	}
+workspace "newgame"
+	configurations { "debug", "release" }
 
 	platforms {
-		"x64",
-		"x32",
-		"native",
+		"linux64",
+		"wasm",
+		-- win32, win64, android, macos, ...
 	}
 
 	language  "C++"
@@ -35,12 +32,11 @@ solution "newgame"
 			path.join(PROJECT_DIR, "src/**.cpp"),
 		}
 
-		configuration { "linux-*" }
+		filter { "platforms:linux*" }
 			links { "GL", "X11", --[[ "Xrandr" ]] }
 			libdirs {
 				path.join(PROJECT_DIR, "lib/bgfx/.build/linux64_gcc/bin/"),
 			}
 
 
-		configuration {}
 
