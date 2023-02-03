@@ -4,6 +4,7 @@
 int main() {
 	printf(" .~* Hello World *~.\n");
 	bgfx::init();
+	printf(" .~*  Bye World  *~.\n");
 	
 	return 0;
 }
