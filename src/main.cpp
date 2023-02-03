@@ -1,11 +1,8 @@
-#include <bgfx/bgfx.h>
 #include <stdio.h>
+//#include <bgfx/bgfx.h>
 
 int main() {
-	printf(" .~* Hello *~.\n");
-#ifdef HELLO_WORLD
-	printf(" `~. World .~´\n");
-#endif
+	printf(" .~* Hello World *~.\n");
 	//bgfx::init();
 	
 	return 0;

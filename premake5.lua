@@ -1,6 +1,7 @@
 PROJECT_DIR = path.getabsolute('.')
 
 -- toolchain
+require "premake-emscripten/emscripten"
 
 -- 
 workspace "newgame"
@@ -19,7 +20,6 @@ workspace "newgame"
 	
 	project "client"
 		kind "WindowedApp"
-		links { "bgfxRelease", "bimgRelease", "bxRelease" }
 		
 		includedirs {
 			path.join(PROJECT_DIR, "src/**.hpp"),
@@ -34,9 +34,15 @@ workspace "newgame"
 
 		filter { "platforms:linux*" }
 			links { "GL", "X11", --[[ "Xrandr" ]] }
+			links { "bgfxRelease", "bimgRelease", "bxRelease" }
 			libdirs {
 				path.join(PROJECT_DIR, "lib/bgfx/.build/linux64_gcc/bin/"),
 			}
 
+		filter { "platforms:wasm" }
+			toolset "emcc"
+			defines { "EMSCRIPTEN=1" }
+			buildoptions { "-s WASM=1", "-s USE_WEBGL2=1", "-s ALLOW_MEMORY_GROWTH=1" }
+			linkoptions { "-s WASM=1", "-s USE_WEBGL2=1", "-s ALLOW_MEMORY_GROWTH=1" }
 
 
