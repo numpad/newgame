@@ -1,3 +1,6 @@
+-- https://github.com/jpcy/bgfx-minimal-example/blob/master/premake5.lua
+
+-- variables
 PROJECT_DIR = path.getabsolute('.')
 
 -- toolchain
@@ -40,7 +43,16 @@ workspace "newgame"
 	filter { "configurations:release" }
 		defines { "BX_CONFIG_DEBUG=0", "NDEBUG" }
 		optimize "Full"
+	
+	filter { "platforms:wasm" }
+		toolset "emcc"
 
+		defines {
+			"EMSCRIPTEN=1",
+			"BGFX_CONFIG_RENDERER_OPENGL=0",
+			"BGFX_CONFIG_RENDERER_OPENGLES=0",
+		}
+	
 
 	project "bx"
 		kind "StaticLib"
@@ -86,7 +98,6 @@ workspace "newgame"
 	
 
 	project "bgfx"
-		-- See: https://github.com/jpcy/bgfx-minimal-example/blob/master/premake5.lua
 		kind "StaticLib"
 		
 		files {
@@ -115,7 +126,12 @@ workspace "newgame"
 	
 	project "client"
 		kind "WindowedApp"
-		
+		links { "bgfx", "bimg", "bx" }
+
+		libdirs {
+			path.join(PROJECT_DIR, "lib/bin/"),
+		}
+
 		includedirs {
 			path.join(PROJECT_DIR, "src/**.hpp"),
 			path.join(PROJECT_DIR, "lib/bgfx/include/"),
@@ -127,28 +143,15 @@ workspace "newgame"
 			path.join(PROJECT_DIR, "src/**.cpp"),
 		}
 		
-		-- Linux Options
 		filter { "platforms:linux*" }
-			links { "GL", "X11", --[[ "Xrandr" ]] }
-			links { "bgfx", "bimg", "bx" }
-			libdirs {
-				path.join(PROJECT_DIR, "lib/bin/"),
-			}
+			links { "GL", "X11", --[[ "Xrandr" ? ]] }
 
-		-- WebAssembly Options
 		filter { "platforms:wasm" }
-			toolset "emcc"
+			buildoptions { }
 
-			defines { "EMSCRIPTEN=1" }
-			buildoptions {
-			}
 			linkoptions {
 				"--shell-file src/platform/wasm/shell.html",
 				"-s WASM=1", "-s USE_WEBGL2=1", "-s ALLOW_MEMORY_GROWTH=1",
-				"lib/bgfx/.build/wasm/bin/bgfxRelease.bc",
-				"lib/bgfx/.build/wasm/bin/bimgRelease.bc",
-				"lib/bgfx/.build/wasm/bin/bxRelease.bc",
 				"-obin/client.html",
 			}
-
 
