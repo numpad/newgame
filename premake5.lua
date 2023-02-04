@@ -9,11 +9,11 @@ require "lib/premake-emscripten/emscripten"
 -- helpers
 function bxCompatIncludeDirs()
 	-- TODO: Test for Windows & Mac
-	filter { "platforms:linux*" }
+	filter "platforms:linux*"
 		includedirs { path.join(PROJECT_DIR, "lib/bx/include/compat/linux/") }
-	filter { "platforms:win*" }
+	filter "platforms:win*"
 		includedirs { path.join(PROJECT_DIR, "lib/bx/include/compat/msvc/") }
-	filter { "platforms:osx*" }
+	filter "platforms:osx*"
 		includedirs { path.join(PROJECT_DIR, "lib/bx/include/compat/osx/") }
 end
 
@@ -35,16 +35,16 @@ workspace "newgame"
 	objdir    (path.join(PROJECT_DIR, "bin/"))
 	targetdir (path.join(PROJECT_DIR, "bin/"))
 	
-	filter { "configurations:debug" }
+	filter "configurations:debug"
 		defines { "BX_CONFIG_DEBUG=1" }
 		optimize "Debug"
 		symbols "On"
 
-	filter { "configurations:release" }
+	filter "configurations:release"
 		defines { "BX_CONFIG_DEBUG=0", "NDEBUG" }
 		optimize "Full"
 	
-	filter { "platforms:wasm" }
+	filter "platforms:wasm"
 		toolset "emcc"
 
 		defines {
@@ -159,13 +159,13 @@ workspace "newgame"
 			path.join(PROJECT_DIR, "src/**.cpp"),
 		}
 		
-		filter { "platforms:linux*" }
+		filter "platforms:linux*"
 			links {
 				"GL", "X11", -- Xrandr?
 				"SDL2", "SDL2_image", "SDL2_mixer", "SDL2_net",
 			}
 
-		filter { "platforms:wasm" }
+		filter "platforms:wasm"
 			buildoptions { }
 
 			linkoptions {
