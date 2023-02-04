@@ -123,6 +123,22 @@ workspace "newgame"
 
 		bxCompatIncludeDirs()
 	
+	--[[
+	project "sdl2"
+		kind "SharedLib"
+		
+		files {
+			path.join(PROJECT_DIR, "lib/sdl2/src/**.c"),
+		}
+		excludes {
+			path.join(PROJECT_DIR, "lib/sdl2/src/core/linux/SDL_fcitx.*"),
+		}
+
+		includedirs {
+			path.join(PROJECT_DIR, "lib/sdl2/include/"),
+			path.join(PROJECT_DIR, "lib/sdl2/src/**.h"),
+		}
+	]]
 	
 	project "client"
 		kind "WindowedApp"
@@ -144,12 +160,18 @@ workspace "newgame"
 		}
 		
 		filter { "platforms:linux*" }
-			links { "GL", "X11", --[[ "Xrandr" ? ]] }
+			links {
+				"GL", "X11", -- Xrandr?
+				"SDL2", "SDL2_image", "SDL2_mixer", "SDL2_net",
+			}
 
 		filter { "platforms:wasm" }
 			buildoptions { }
 
 			linkoptions {
+				"-s USE_SDL=2 -s USE_SDL_IMAGE=2 -s SDL2_IMAGE_FORMATS='[\"png\"]'",
+				"-s USE_SDL_NET=2 -s USE_SDL_MIXER=2",
+				-- "--preload-file res",
 				"--shell-file src/platform/wasm/shell.html",
 				"-s WASM=1", "-s USE_WEBGL2=1", "-s ALLOW_MEMORY_GROWTH=1",
 				"-obin/client.html",

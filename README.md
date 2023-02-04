@@ -20,3 +20,14 @@ don't work at all, or only on my machine.
 
 Before Building, `premake5` and `emscripten` need to be installed.
 
+#### SDL2
+
+When targeting Linux builds, `SDL2`, `SDL2_image`, `SDL2_mixer` &
+`SDL2_net` libraries are expected to be installed.
+
+When targeting WebAssembly, the emscripten ports are used.
+
+#### BGFX
+
+`BGFX`, `BIMG` & `BX` source files are included and built.
+
