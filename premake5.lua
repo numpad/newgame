@@ -49,8 +49,7 @@ workspace "newgame"
 
 		defines {
 			"EMSCRIPTEN=1",
-			"BGFX_CONFIG_RENDERER_OPENGL=0",
-			"BGFX_CONFIG_RENDERER_OPENGLES=0",
+			"BGFX_CONFIG_RENDERER_OPENGLES=2",
 		}
 	
 
