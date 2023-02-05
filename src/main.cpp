@@ -8,15 +8,13 @@
 #include <bx/thread.h>
 #include <glm/glm.hpp>
 #include <entt/entt.hpp>
-
 #if BX_PLATFORM_EMSCRIPTEN
 #include <emscripten.h>
 #endif
 
-struct EngineContext {
-	bool quit = false;
-	SDL_Window* window = nullptr;
-};
+#include "engine/engine.hpp"
+#include "engine/iscene.hpp"
+#include "scenes/simple.hpp"
 
 void main_onexit(void* data) {
 	EngineContext* ctx = static_cast<EngineContext*>(data);
@@ -25,7 +23,6 @@ void main_onexit(void* data) {
 	SDL_DestroyWindow(ctx->window);
 	SDL_Quit();
 	printf(" .~*  Bye World  *~.\n");
-
 }
 
 void main_loop(void* data) {
@@ -38,7 +35,7 @@ void main_loop(void* data) {
 			ctx->quit = true;
 			break;
 		case SDL_WINDOWEVENT:
-			if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
+			if (event.window.event == SDL_WINDOWEVENT_RESIZED || event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
 				const int width = event.window.data1;
 				const int height = event.window.data2;
 				bgfx::reset(width, height, BGFX_RESET_VSYNC);
@@ -49,13 +46,11 @@ void main_loop(void* data) {
 	}
 	
 	// render
-	bgfx::touch(0);
-
-	bgfx::dbgTextClear();
-	bgfx::dbgTextPrintf(10, 10, 0x0f, ".~* Hello World *~.");
-	bgfx::dbgTextPrintf(10, 11, 0x0f, "bgfx is \x1b[33m s u p e r \x1b[0m awesome.");
-
-	bgfx::frame();
+	if (ctx->scene != nullptr) {
+		ctx->scene->update();
+	} else {
+		printf("main_loop: scene is NULL!\n");
+	}
 
 #if BX_PLATFORM_EMSCRIPTEN
 	if (ctx->quit) {
@@ -110,8 +105,11 @@ int main() {
 	bgfx::init(init);
 	bgfx::setDebug(BGFX_DEBUG_TEXT);
 	bgfx::setViewClear(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0xd65d0eff, 1.0f, 0);
-	bgfx::setViewRect(0, 0, 0, 800, 600);
+	bgfx::setViewRect(0, 0, 0, bgfx::BackbufferRatio::Equal);
 	
+	// scene setup
+	context.scene = new SimpleScene(&context);
+
 	// main loop
 #if BX_PLATFORM_EMSCRIPTEN
 	emscripten_set_main_loop_arg(main_loop, &context, -1, 1);
@@ -119,10 +117,10 @@ int main() {
 	while (!context.quit) {
 		main_loop(&context);
 	}
-#endif
 
 	// cleanup
 	main_onexit(&context);
+#endif
 
 	return 0;
 }
