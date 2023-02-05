@@ -42,6 +42,30 @@ void main_loop(void* data) {
 				bgfx::setViewRect(0, 0, 0, width, height);
 			}
 			break;
+		case SDL_MOUSEMOTION:
+			if (event.motion.which == SDL_TOUCH_MOUSEID) break;
+
+			printf("mouse move\n");
+			break;
+		case SDL_MOUSEBUTTONDOWN:
+			if (event.button.which == SDL_TOUCH_MOUSEID) break;
+
+			printf("mouse down\n");
+			break;
+		case SDL_MOUSEBUTTONUP:
+			if (event.button.which == SDL_TOUCH_MOUSEID) break;
+
+			printf("mouse up\n");
+			break;
+		case SDL_FINGERMOTION:
+			printf("finger move\n");
+			break;
+		case SDL_FINGERDOWN:
+			printf("finger down\n");
+			break;
+		case SDL_FINGERUP:
+			printf("finger up\n");
+			break;
 		}
 	}
 	

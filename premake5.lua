@@ -32,8 +32,8 @@ workspace "newgame"
 	-- exceptionhandling "Off"
 	
 	location  (path.join(PROJECT_DIR, ""))
-	objdir    (path.join(PROJECT_DIR, "bin/"))
-	targetdir (path.join(PROJECT_DIR, "bin/"))
+	-- objdir    (path.join(PROJECT_DIR, "bin/"))
+	-- targetdir (path.join(PROJECT_DIR, "bin/"))
 	
 	filter "configurations:debug"
 		defines { "BX_CONFIG_DEBUG=1" }
@@ -175,6 +175,6 @@ workspace "newgame"
 				-- "--preload-file res",
 				"--shell-file src/_platform/wasm/shell.html",
 				"-s WASM=1", "-s USE_WEBGL2=1", "-s ALLOW_MEMORY_GROWTH=1",
-				"-obin/client.html",
+				"-obin/wasm/client.html",
 			}
 
