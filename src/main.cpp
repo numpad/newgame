@@ -7,6 +7,7 @@
 #include <bx/mutex.h>
 #include <bx/thread.h>
 #include <glm/glm.hpp>
+#include <entt/entt.hpp>
 
 #if BX_PLATFORM_EMSCRIPTEN
 #include <emscripten.h>
@@ -20,6 +21,7 @@ struct EngineContext {
 void main_loop(void* data) {
 	EngineContext* ctx = static_cast<EngineContext*>(data);
 
+	// handle events
 	for (SDL_Event event; SDL_PollEvent(&event) != 0; ) {
 		switch (event.type) {
 		case SDL_QUIT:
@@ -36,6 +38,7 @@ void main_loop(void* data) {
 		}
 	}
 	
+	// render
 	bgfx::touch(0);
 
 	bgfx::dbgTextClear();
@@ -87,7 +90,7 @@ int main() {
 	bgfx::PlatformData pd;
 #if BX_PLATFORM_LINUX || BX_PLATFORM_BSD
 	pd.ndt = wmi.info.x11.display;
-	pd.nwh = (void *)(uintptr_t)wmi.info.x11.window;
+	pd.nwh = (void*)wmi.info.x11.window;
 #elif BX_PLATFORM_WINDOWS
 	pd.nwh = wmi.info.win.window;
 #elif BX_PLATFORM_OSX

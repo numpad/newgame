@@ -4,7 +4,8 @@
 PROJECT_DIR = path.getabsolute('.')
 
 -- toolchain
-require "lib/premake-emscripten/emscripten"
+require "lib/premake-modules/emscripten"
+require "lib/premake-modules/export-compile-commands"
 
 -- helpers
 function bxCompatIncludeDirs()
@@ -27,7 +28,7 @@ workspace "newgame"
 	}
 
 	language  "C++"
-	cppdialect "C++14"
+	cppdialect "C++17"
 	-- rtti "Off"
 	-- exceptionhandling "Off"
 	
@@ -153,6 +154,7 @@ workspace "newgame"
 			path.join(PROJECT_DIR, "lib/bimg/include/"),
 			path.join(PROJECT_DIR, "lib/bx/include/"),
 			path.join(PROJECT_DIR, "lib/glm/include/"),
+			path.join(PROJECT_DIR, "lib/entt/single_include/"),
 		}
 
 		files {
