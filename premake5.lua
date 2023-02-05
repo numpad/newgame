@@ -5,7 +5,6 @@ PROJECT_DIR = path.getabsolute('.')
 
 -- toolchain
 require "lib/premake-modules/emscripten"
-require "lib/premake-modules/export-compile-commands"
 
 -- helpers
 function bxCompatIncludeDirs()
@@ -50,7 +49,7 @@ workspace "newgame"
 
 		defines {
 			"EMSCRIPTEN=1",
-			"BGFX_CONFIG_RENDERER_OPENGLES=2",
+			"BGFX_CONFIG_RENDERER_OPENGLES=20",
 		}
 	
 

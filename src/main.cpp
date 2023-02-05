@@ -18,6 +18,16 @@ struct EngineContext {
 	SDL_Window* window = nullptr;
 };
 
+void main_onexit(void* data) {
+	EngineContext* ctx = static_cast<EngineContext*>(data);
+
+	bgfx::shutdown();
+	SDL_DestroyWindow(ctx->window);
+	SDL_Quit();
+	printf(" .~*  Bye World  *~.\n");
+
+}
+
 void main_loop(void* data) {
 	EngineContext* ctx = static_cast<EngineContext*>(data);
 
@@ -43,25 +53,16 @@ void main_loop(void* data) {
 
 	bgfx::dbgTextClear();
 	bgfx::dbgTextPrintf(10, 10, 0x0f, ".~* Hello World *~.");
-	bgfx::dbgTextPrintf(10, 11, 0x0f, "bgfx is \x1b[33msuper\x1b[0m awesome.");
+	bgfx::dbgTextPrintf(10, 11, 0x0f, "bgfx is \x1b[33m s u p e r \x1b[0m awesome.");
 
 	bgfx::frame();
 
 #if BX_PLATFORM_EMSCRIPTEN
 	if (ctx->quit) {
 		emscripten_cancel_main_loop();
+		main_onexit(data);
 	}
 #endif
-}
-
-void main_onexit(void* data) {
-	EngineContext* ctx = static_cast<EngineContext*>(data);
-
-	bgfx::shutdown();
-	SDL_DestroyWindow(ctx->window);
-	SDL_Quit();
-	printf(" .~*  Bye World  *~.\n");
-
 }
 
 int main() {
@@ -71,7 +72,7 @@ int main() {
 	EngineContext context;
 
 	// init sdl
-	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_GAMECONTROLLER | SDL_INIT_TIMER) < 0) {
 		printf("failed initializing SDL2: %s\n", SDL_GetError());
 		return 1;
 	}
@@ -98,16 +99,6 @@ int main() {
 #elif BX_PLATFORM_EMSCRIPTEN
 	pd.nwh = (void*)"#canvas";
 #endif
-
-	glm::vec2 pos(0.0f, 1.0f);
-	glm::vec2 target(3.0f);
-
-	glm::vec2 d;
-	do {
-		printf("pos: %.1f, %.1f\n", pos.x, pos.y);
-		d = glm::normalize(target - pos) * 0.2f;
-		pos += d;
-	} while (glm::length(d) < glm::length(target - pos));
 
 	// init bgfx
 	bgfx::Init init;
