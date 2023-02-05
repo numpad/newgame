@@ -152,6 +152,7 @@ workspace "newgame"
 			path.join(PROJECT_DIR, "lib/bgfx/include/"),
 			path.join(PROJECT_DIR, "lib/bimg/include/"),
 			path.join(PROJECT_DIR, "lib/bx/include/"),
+			path.join(PROJECT_DIR, "lib/glm/include/"),
 		}
 
 		files {

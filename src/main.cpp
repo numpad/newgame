@@ -6,6 +6,7 @@
 #include <bx/bx.h>
 #include <bx/mutex.h>
 #include <bx/thread.h>
+#include <glm/glm.hpp>
 
 #if BX_PLATFORM_EMSCRIPTEN
 #include <emscripten.h>
@@ -94,6 +95,16 @@ int main() {
 #elif BX_PLATFORM_EMSCRIPTEN
 	pd.nwh = (void*)"#canvas";
 #endif
+
+	glm::vec2 pos(0.0f, 1.0f);
+	glm::vec2 target(3.0f);
+
+	glm::vec2 d;
+	do {
+		printf("pos: %.1f, %.1f\n", pos.x, pos.y);
+		d = glm::normalize(target - pos) * 0.2f;
+		pos += d;
+	} while (glm::length(d) < glm::length(target - pos));
 
 	// init bgfx
 	bgfx::Init init;
