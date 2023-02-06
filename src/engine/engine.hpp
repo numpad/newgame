@@ -11,8 +11,6 @@ struct EngineContext {
 };
 
 namespace engine {
-	void set_scene(EngineContext& context, IScene* newScene) {
-
-	}
+	void set_scene(EngineContext& context, IScene* newScene);
 }
 

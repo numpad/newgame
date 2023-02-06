@@ -138,7 +138,7 @@ workspace "newgame"
 			path.join(PROJECT_DIR, "lib/sdl2/src/**.h"),
 		}
 	]]
-	
+
 	project "client"
 		kind "WindowedApp"
 		links { "bgfx", "bimg", "bx" }
@@ -158,6 +158,14 @@ workspace "newgame"
 
 		files {
 			path.join(PROJECT_DIR, "src/**.cpp"),
+		}
+
+		postbuildcommands {
+			-- meh... but it will do for now
+			"bgfx-shaderc -f res/shader/jelly/vertex.sc -o res/shader/jelly/gles/vertex.bin --platform asm.js --type vertex -i lib/bgfx/src",
+			"bgfx-shaderc -f res/shader/jelly/fragment.sc -o res/shader/jelly/gles/fragment.bin --platform asm.js --type fragment -i lib/bgfx/src",
+			"bgfx-shaderc -f res/shader/jelly/vertex.sc -o res/shader/jelly/spirv/vertex.bin --platform linux -p spirv --type vertex -i lib/bgfx/src",
+			"bgfx-shaderc -f res/shader/jelly/fragment.sc -o res/shader/jelly/spirv/fragment.bin --platform linux -p spirv --type fragment -i lib/bgfx/src",
 		}
 		
 		filter "platforms:linux*"

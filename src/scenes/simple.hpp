@@ -7,10 +7,6 @@
 class SimpleScene : public IScene {
 public:
 
-	SimpleScene(EngineContext* context) : IScene(context) {
-	}
-
-
 private:
 	
 	virtual bool onCreate() {

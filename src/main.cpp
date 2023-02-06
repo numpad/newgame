@@ -19,6 +19,9 @@
 void main_onexit(void* data) {
 	EngineContext* ctx = static_cast<EngineContext*>(data);
 
+	EngineContext context = *ctx;
+	engine::set_scene(context, nullptr);
+
 	bgfx::shutdown();
 	SDL_DestroyWindow(ctx->window);
 	SDL_Quit();
@@ -132,8 +135,7 @@ int main() {
 	bgfx::setViewRect(0, 0, 0, bgfx::BackbufferRatio::Equal);
 	
 	// scene setup
-	context.scene = new SoftBodyScene(&context);
-	context.scene->create();
+	engine::set_scene(context, new SoftBodyScene());
 
 	// main loop
 #if BX_PLATFORM_EMSCRIPTEN

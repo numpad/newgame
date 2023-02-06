@@ -7,10 +7,6 @@ public:
 	
 	EngineContext* m_context = nullptr;
 
-	IScene(EngineContext* context) {
-		m_context = context;
-	}
-
 	virtual ~IScene() = default;
 
 	bool create() { return onCreate(); }

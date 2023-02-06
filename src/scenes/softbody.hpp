@@ -2,6 +2,8 @@
 
 #include <bgfx/bgfx.h>
 #include <bx/bx.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include "engine/engine.hpp"
 #include "engine/iscene.hpp"
 #include "engine/assets.hpp"
@@ -33,10 +35,6 @@ static Vertex_PosColor s_carVertices[] = {
 class SoftBodyScene : public IScene {
 public:
 
-	SoftBodyScene(EngineContext* context) : IScene(context) {
-	}
-
-
 private:
 	bgfx::VertexBufferHandle m_vbh;
 	bgfx::ProgramHandle m_program;
@@ -60,22 +58,16 @@ private:
 		bgfx::dbgTextPrintf(1, 1, 0x0f, "test test 123");
 		
 		// render
-		/*
-		const bx::Vec3 at = {0.0f, 0.0f, 0.0f};
-		const bx::Vec3 eye = {0.0f, 0.0f, -5.0f};
+		int width, height;
+		SDL_GetWindowSize(m_context->window, &width, &height);
+		const float aspect = float(width) / float(height);
 
-		// view & projection matrix
-		float view[16];
-		bx::mtxLookAt(view, eye, at);
-		float proj[16];
-		bx::mtxProj(proj, 60.0f, float(800)/float(600), 0.1f, 100.0f, bgfx::getCaps()->homogeneousDepth);
-		bgfx::setViewTransform(0, view, proj);
-		*/
+		glm::mat4 proj = glm::ortho(-aspect, aspect, -1.0f, 1.0f, -1.0f, 1.0f);
+		glm::mat4 view = glm::mat4(1.0f);
+		bgfx::setViewTransform(0, &view, &proj);
 
-		bgfx::setState(BGFX_STATE_WRITE_R
-		             | BGFX_STATE_WRITE_G
-		             | BGFX_STATE_WRITE_B
-		             | BGFX_STATE_WRITE_A); // and more
+		bgfx::setState(BGFX_STATE_WRITE_R | BGFX_STATE_WRITE_G
+		             | BGFX_STATE_WRITE_B | BGFX_STATE_WRITE_A); // and more?
 
 		bgfx::setVertexBuffer(0, m_vbh);
 		bgfx::submit(0, m_program);
@@ -84,6 +76,7 @@ private:
 	}
 
 	virtual void onDestroy() {
+		bgfx::destroy(m_program);
 		bgfx::destroy(m_program);
 	}
 
