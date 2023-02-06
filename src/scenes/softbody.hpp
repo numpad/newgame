@@ -2,7 +2,6 @@
 
 #include <bgfx/bgfx.h>
 #include <bx/bx.h>
-#include <bx/math.h>
 #include "engine/engine.hpp"
 #include "engine/iscene.hpp"
 #include "engine/assets.hpp"
@@ -58,9 +57,10 @@ private:
 		bgfx::touch(0);
 		
 		bgfx::dbgTextClear();
-		bgfx::dbgTextPrintf(1, 1, 0x0f, "ich bin kein renderer, ich putze hier nur.");
+		bgfx::dbgTextPrintf(1, 1, 0x0f, "test test 123");
 		
 		// render
+		/*
 		const bx::Vec3 at = {0.0f, 0.0f, 0.0f};
 		const bx::Vec3 eye = {0.0f, 0.0f, -5.0f};
 
@@ -70,6 +70,7 @@ private:
 		float proj[16];
 		bx::mtxProj(proj, 60.0f, float(800)/float(600), 0.1f, 100.0f, bgfx::getCaps()->homogeneousDepth);
 		bgfx::setViewTransform(0, view, proj);
+		*/
 
 		bgfx::setState(BGFX_STATE_WRITE_R
 		             | BGFX_STATE_WRITE_G
