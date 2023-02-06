@@ -10,13 +10,9 @@ struct EngineContext {
 	IScene* scene = nullptr;
 };
 
-class Engine {
-public:
+namespace engine {
+	void set_scene(EngineContext& context, IScene* newScene) {
 
-	void set_scene(IScene* scene);
-
-private:
-	
-	bool init();
-};
+	}
+}
 

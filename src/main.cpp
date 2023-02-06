@@ -14,7 +14,7 @@
 
 #include "engine/engine.hpp"
 #include "engine/iscene.hpp"
-#include "scenes/simple.hpp"
+#include "scenes/softbody.hpp"
 
 void main_onexit(void* data) {
 	EngineContext* ctx = static_cast<EngineContext*>(data);
@@ -132,7 +132,8 @@ int main() {
 	bgfx::setViewRect(0, 0, 0, bgfx::BackbufferRatio::Equal);
 	
 	// scene setup
-	context.scene = new SimpleScene(&context);
+	context.scene = new SoftBodyScene(&context);
+	context.scene->create();
 
 	// main loop
 #if BX_PLATFORM_EMSCRIPTEN
