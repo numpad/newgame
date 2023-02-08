@@ -57,6 +57,9 @@ private:
 		bgfx::dbgTextClear();
 		bgfx::dbgTextPrintf(1, 1, 0x0f, "test test 123");
 		
+		// update
+		
+
 		// render
 		int width, height;
 		SDL_GetWindowSize(m_context->window, &width, &height);
@@ -65,6 +68,9 @@ private:
 		glm::mat4 proj = glm::ortho(-aspect, aspect, -1.0f, 1.0f, -1.0f, 1.0f);
 		glm::mat4 view = glm::mat4(1.0f);
 		bgfx::setViewTransform(0, &view, &proj);
+		
+		glm::mat4 model = glm::mat4(1.0f);
+		bgfx::setTransform(&model);
 
 		bgfx::setState(BGFX_STATE_WRITE_R | BGFX_STATE_WRITE_G
 		             | BGFX_STATE_WRITE_B | BGFX_STATE_WRITE_A); // and more?
