@@ -59,7 +59,25 @@ void main_loop(void* data) {
 	
 	// render
 	if (ctx->scene != nullptr) {
-		ctx->scene->update(0.0f);
+		// timestep
+		static uint64_t _time_ms = 0;
+		const uint64_t _dt_ms = 16;
+		static uint64_t _currenttime_ms = engine::get_scenetime(*ctx);
+		static uint64_t _accumulator = 0;
+
+		const uint64_t newtime = engine::get_scenetime(*ctx);
+		const uint64_t frametime = newtime - _currenttime_ms;
+		_currenttime_ms = newtime;
+
+		_accumulator += frametime;
+
+		while (_accumulator >= _dt_ms) {
+			ctx->scene->tick();
+			_accumulator -= _dt_ms;
+			_time_ms += _dt_ms;
+		}
+
+		ctx->scene->update();
 	}
 
 #if BX_PLATFORM_EMSCRIPTEN
@@ -78,7 +96,7 @@ int main() {
 	engine::init(context);
 
 	// scene setup
-	engine::set_scene(context, new MageScene());
+	engine::set_scene(context, engine::new_scene<MageScene>(context));
 
 	// main loop
 #if BX_PLATFORM_EMSCRIPTEN

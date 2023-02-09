@@ -38,6 +38,7 @@ public:
 private:
 	bgfx::VertexBufferHandle m_vbh;
 	bgfx::ProgramHandle m_program;
+	uint64_t timeaccu = 0;
 
 	virtual bool onCreate() {
 		Vertex_PosColor::init();
@@ -50,17 +51,21 @@ private:
 
 		return true;
 	}
+	
+	virtual void onTick() {
+		timeaccu += 16;
+	}
 
-	virtual void onUpdate(float dt) {
+	virtual void onUpdate() {
 		bgfx::touch(0);
 		
 		float time = engine::get_scenetime(*m_context) / 1000.0f;
+		float time2 = timeaccu / 1000.0f;
 		bgfx::dbgTextClear();
 		bgfx::dbgTextPrintf(1, 1, 0x0f, "seconds: %g", time);
+		bgfx::dbgTextPrintf(1, 2, 0x0f, "seconds: %g", time2);
+		bgfx::dbgTextPrintf(1, 3, 0x0f, "   diff: %g", time - time2);
 		
-		// update
-		
-
 		// render
 		int width, height;
 		SDL_GetWindowSize(m_context->window, &width, &height);
