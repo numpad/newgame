@@ -62,8 +62,6 @@ namespace assets {
 		char* src_vs = assets::readfile(path_vs, &src_vs_size);
 		char* src_fs = assets::readfile(path_fs, &src_fs_size);
 
-		printf("frag: %d bytes\nvert: %d bytes\n", src_fs_size, src_vs_size);
-
 		bgfx::ShaderHandle shader_vs = bgfx::createShader(
 				bgfx::makeRef(src_vs, src_vs_size, makeref_free_string));
 		//bgfx::setName(shader_vs, path_vs);

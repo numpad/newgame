@@ -11,19 +11,7 @@
 
 #include "engine/engine.hpp"
 #include "engine/iscene.hpp"
-#include "scenes/softbody.hpp"
-
-void main_onexit(void* data) {
-	EngineContext* ctx = static_cast<EngineContext*>(data);
-
-	EngineContext context = *ctx;
-	engine::set_scene(context, nullptr);
-
-	bgfx::shutdown();
-	SDL_DestroyWindow(ctx->window);
-	SDL_Quit();
-	printf(" .~*  Bye World  *~.\n");
-}
+#include "scenes/mage.hpp"
 
 void main_loop(void* data) {
 	EngineContext* ctx = static_cast<EngineContext*>(data);
@@ -71,15 +59,13 @@ void main_loop(void* data) {
 	
 	// render
 	if (ctx->scene != nullptr) {
-		ctx->scene->update();
-	} else {
-		printf("main_loop: scene is NULL!\n");
+		ctx->scene->update(0.0f);
 	}
 
 #if BX_PLATFORM_EMSCRIPTEN
 	if (ctx->quit) {
 		emscripten_cancel_main_loop();
-		main_onexit(data);
+		engine::destroy(*ctx);
 	}
 #endif
 }
@@ -92,7 +78,7 @@ int main() {
 	engine::init(context);
 
 	// scene setup
-	engine::set_scene(context, new SoftBodyScene());
+	engine::set_scene(context, new MageScene());
 
 	// main loop
 #if BX_PLATFORM_EMSCRIPTEN
@@ -103,7 +89,7 @@ int main() {
 	}
 
 	// cleanup
-	main_onexit(&context);
+	engine::destroy(context);
 #endif
 
 	return 0;

@@ -10,12 +10,12 @@ public:
 	virtual ~IScene() = default;
 
 	bool create() { return onCreate(); }
-	void update() { onUpdate(); }
+	void update(float dt) { onUpdate(dt); }
 	void destroy() { onDestroy(); }
 
 private:
 	virtual bool onCreate() = 0;
-	virtual void onUpdate() = 0;
+	virtual void onUpdate(float dt) = 0;
 	virtual void onDestroy() = 0;
 
 };

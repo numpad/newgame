@@ -9,6 +9,7 @@
 #include <bx/thread.h>
 #include <bgfx/bgfx.h>
 #include "engine/iscene.hpp"
+#include <string>
 
 namespace engine {
 	void init(EngineContext& context) {
@@ -59,6 +60,15 @@ namespace engine {
 		bgfx::setViewClear(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0xd65d0eff, 1.0f, 0);
 		bgfx::setViewRect(0, 0, 0, bgfx::BackbufferRatio::Equal);
 		
+	}
+
+	void destroy(EngineContext& context) {
+		engine::set_scene(context, nullptr);
+
+		bgfx::shutdown();
+		SDL_DestroyWindow(context.window);
+		SDL_Quit();
+		printf(" .~*  Bye World  *~.\n");
 	}
 
 	void set_scene(EngineContext& context, IScene* newScene) {

@@ -14,7 +14,7 @@ private:
 		return true;
 	}
 
-	virtual void onUpdate() {
+	virtual void onUpdate(float dt) {
 		bgfx::touch(0);
 		
 		bgfx::dbgTextClear();

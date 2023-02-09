@@ -32,7 +32,7 @@ static Vertex_PosColor s_carVertices[] = {
 	{ 1.0f,  1.0f, 0.0f, 0xff00ffff}
 };
 
-class SoftBodyScene : public IScene {
+class MageScene : public IScene {
 public:
 
 private:
