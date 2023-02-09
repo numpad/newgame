@@ -54,8 +54,9 @@ private:
 	virtual void onUpdate(float dt) {
 		bgfx::touch(0);
 		
+		float time = engine::get_scenetime(*m_context) / 1000.0f;
 		bgfx::dbgTextClear();
-		bgfx::dbgTextPrintf(1, 1, 0x0f, "test test 123");
+		bgfx::dbgTextPrintf(1, 1, 0x0f, "seconds: %g", time);
 		
 		// update
 		

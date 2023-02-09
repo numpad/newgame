@@ -83,5 +83,11 @@ namespace engine {
 			context.scene->m_context = &context;
 		}
 	}
+
+	uint64_t get_scenetime(const EngineContext& context) {
+		if (!context.scene->get_createdtime()) return 0;
+	
+		return SDL_GetTicks64() - context.scene->get_createdtime();
+	}
 }
 
