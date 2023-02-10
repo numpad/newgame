@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdio.h>
 #include <bgfx/bgfx.h>
 
 struct AssetContext {

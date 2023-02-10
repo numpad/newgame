@@ -23,7 +23,8 @@ workspace "newgame"
 	platforms {
 		"linux64",
 		"wasm",
-		-- win32, win64, android, osx, ...
+		"win64",
+		-- win32, android, osx, ...
 	}
 
 	language  "C++"
@@ -44,6 +45,11 @@ workspace "newgame"
 		defines { "BX_CONFIG_DEBUG=0", "NDEBUG" }
 		optimize "Full"
 	
+	filter "platforms:win*"
+		defines "_CRT_SECURE_NO_WARNINGS"
+		defines "__STDC_FORMAT_MACROS"
+		buildoptions { "/Zc:__cplusplus" }
+
 	filter "platforms:wasm"
 		toolset "emcc"
 
@@ -55,7 +61,7 @@ workspace "newgame"
 
 	project "bx"
 		kind "StaticLib"
-		
+
 		files {
 			path.join(PROJECT_DIR, "lib/bx/include/bx/*.h"),
 			path.join(PROJECT_DIR, "lib/bx/include/bx/inline/*.inl"),
@@ -100,7 +106,7 @@ workspace "newgame"
 		kind "StaticLib"
 		
 		files {
-			path.join(PROJECT_DIR, "lib/bgfx/include/bgfx/*.h"),
+			path.join(PROJECT_DIR, "lib/bgfx/include/bgfx/**.h"),
 			path.join(PROJECT_DIR, "lib/bgfx/src/*.cpp"),
 			path.join(PROJECT_DIR, "lib/bgfx/src/*.h"),
 		}
@@ -116,9 +122,15 @@ workspace "newgame"
 			path.join(PROJECT_DIR, "lib/bgfx/3rdparty/"),
 			path.join(PROJECT_DIR, "lib/bgfx/3rdparty/directx-headers/include/"),
 			path.join(PROJECT_DIR, "lib/bgfx/3rdparty/directx-headers/include/directx/"),
-			path.join(PROJECT_DIR, "lib/bgfx/3rdparty/directx-headers/include/wsl/stubs/"),
 			path.join(PROJECT_DIR, "lib/bgfx/3rdparty/khronos/"),
+			--path.join(PROJECT_DIR, "lib/bgfx/3rdparty/directx-headers/include/wsl/stubs/"),
 		}
+		
+		filter "platforms:win*"
+			excludes {
+				path.join(PROJECT_DIR, "lib/bgfx/src/glcontext_glx.cpp"),
+				path.join(PROJECT_DIR, "lib/bgfx/src/glcontext_egl.cpp"),
+			}
 
 		bxCompatIncludeDirs()
 	
@@ -166,12 +178,23 @@ workspace "newgame"
 			"bgfx-shaderc -f res/shader/jelly/fragment.sc -o res/shader/jelly/gles/fragment.bin --platform asm.js --type fragment -i lib/bgfx/src",
 			"bgfx-shaderc -f res/shader/jelly/vertex.sc -o res/shader/jelly/spirv/vertex.bin --platform linux -p spirv --type vertex -i lib/bgfx/src",
 			"bgfx-shaderc -f res/shader/jelly/fragment.sc -o res/shader/jelly/spirv/fragment.bin --platform linux -p spirv --type fragment -i lib/bgfx/src",
+			"bgfx-shaderc -f res/shader/jelly/vertex.sc -o res/shader/jelly/dx11/vertex.bin --platform linux -p dx12 --type vertex -i lib/bgfx/src",
+			"bgfx-shaderc -f res/shader/jelly/fragment.sc -o res/shader/jelly/dx11/fragment.bin --platform linux -p dx12 --type fragment -i lib/bgfx/src",
 		}
 		
 		filter "platforms:linux*"
 			links {
 				"GL", "X11", -- Xrandr?
 				"SDL2", "SDL2_image", "SDL2_mixer", "SDL2_net",
+			}
+		
+		filter "platforms:win*"
+			links { "gdi32", "kernel32", "psapi", "SDL2" }
+			includedirs {
+				path.join(PROJECT_DIR, "lib/SDL/include/"),
+			}
+			libdirs {
+				path.join(PROJECT_DIR, "lib/SDL/lib/x64/"),
 			}
 
 		filter "platforms:wasm"
@@ -185,4 +208,6 @@ workspace "newgame"
 				"-s WASM=1", "-s USE_WEBGL2=1", "-s ALLOW_MEMORY_GROWTH=1",
 				"-obin/wasm/client.html",
 			}
+
+		bxCompatIncludeDirs()
 

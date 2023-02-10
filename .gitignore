@@ -4,4 +4,8 @@ obj/
 Makefile
 *.make
 temp/
-
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*.sln
+.vs/
