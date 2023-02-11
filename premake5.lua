@@ -150,6 +150,7 @@ workspace "newgame"
 			path.join(PROJECT_DIR, "lib/bx/include/"),
 			path.join(PROJECT_DIR, "lib/glm/include/"),
 			path.join(PROJECT_DIR, "lib/entt/single_include/"),
+			path.join(PROJECT_DIR, "lib/stb/"),
 		}
 
 		files {

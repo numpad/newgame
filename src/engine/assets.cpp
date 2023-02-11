@@ -1,8 +1,11 @@
 #include "engine/assets.hpp"
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 #include <bgfx/bgfx.h>
 #include <bimg/decode.h>
+#include <glm/glm.hpp>
+#include <stb_image.h>
 
 ////////////
 // STATIC //
@@ -70,25 +73,27 @@ namespace assets {
 		return bgfx::createProgram(shader_vs, shader_fs, true);
 	}
 
-	bgfx::TextureHandle load_texture(const char* path) {
-		bgfx::TextureHandle handle = BGFX_INVALID_HANDLE;
-		uint64_t flags = BGFX_TEXTURE_NONE | BGFX_SAMPLER_NONE;
+	bgfx::TextureHandle load_texture(const char* path, glm::ivec2* dimensions) {
+		glm::ivec2 size;
+		int channels;
+		stbi_set_flip_vertically_on_load(true);
+
+		uint8_t* data = stbi_load(path, &size.x, &size.y, &channels, 0);
 		
-		// load raw file
-		size_t size;
-		void* data = assets::readfile(path, &size);
-		if (data == nullptr) return BGFX_INVALID_HANDLE;
+		const uint32_t flags = BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP | BGFX_SAMPLER_MIN_POINT | BGFX_SAMPLER_MAG_POINT;
+		bgfx::TextureHandle handle = bgfx::createTexture2D( size.x, size.y, false, 1, bgfx::TextureFormat::RGBA8, flags, bgfx::copy(data, size.x * size.y * channels));
 
-		// load image
-		bimg::ImageContainer container;
-		const bool parsed = bimg::imageParse(container, data, size);
-		if (!parsed) return BGFX_INVALID_HANDLE;
+		if (!bgfx::isValid(handle)) {
+			printf("failed loading texture '%s'\n", path);
+			return BGFX_INVALID_HANDLE;
+		}
+		
+		if (dimensions != nullptr) {
+			dimensions->x = size.x;
+			dimensions->y = size.y;
+		}
 
-		const bgfx::Memory* memory = bgfx::makeRef(container.m_data, container.m_size, makeref_free_image, &container);
-		SDL_free(data);
-
-		handle = bgfx::createTexture2D(container.m_width, container.m_height, container.m_numMips > 1, container.m_numLayers, bgfx::TextureFormat::Enum(container.m_format), flags, memory);
-
+		stbi_image_free(data);
 		return handle;
 	}
 };

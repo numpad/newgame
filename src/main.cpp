@@ -9,6 +9,10 @@
 #include <emscripten.h>
 #endif
 
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
+#undef STB_IMAGE_IMPLEMENTATION
+
 #include "engine/engine.hpp"
 #include "engine/iscene.hpp"
 #include "scenes/mage.hpp"

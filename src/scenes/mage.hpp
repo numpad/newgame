@@ -53,7 +53,7 @@ private:
 					bgfx::makeRef(s_carVertices, sizeof(s_carVertices)),
 					Vertex_PosColor::ms_layout);
 		m_program = assets::load_program("res/shader/jelly");
-		m_texture = assets::load_texture("res/image/dungeon.dds");
+		m_texture = assets::load_texture("res/image/dungeon.png");
 
 		// init systems
 		m_spriterenderer = new SpriteRenderSystem(m_registry);
@@ -104,6 +104,7 @@ private:
 	}
 
 	virtual void onDestroy() {
+		bgfx::destroy(m_texture);
 		delete m_spriterenderer;
 		bgfx::destroy(m_vbh);
 		bgfx::destroy(m_program);
