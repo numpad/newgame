@@ -4,9 +4,11 @@
 #include <bx/bx.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <entt/entt.hpp>
 #include "engine/engine.hpp"
 #include "engine/iscene.hpp"
 #include "engine/assets.hpp"
+#include "ecs/systems/SpriteRenderSystem.hpp"
 
 struct Vertex_PosColor {
 	float m_x, m_y, m_z;
@@ -24,12 +26,12 @@ struct Vertex_PosColor {
 bgfx::VertexLayout Vertex_PosColor::ms_layout;
 
 static Vertex_PosColor s_carVertices[] = {
-	{-1.0f, -1.0f, 0.0f, 0xff0000ff},
-	{ 1.0f, -1.0f, 0.0f, 0xff00ff00},
-	{-1.0f,  1.0f, 0.0f, 0xffff0000},
-	{-1.0f,  1.0f, 0.0f, 0xffff0000},
-	{ 1.0f, -1.0f, 0.0f, 0xff00ff00},
-	{ 1.0f,  1.0f, 0.0f, 0xff00ffff}
+	{-1.0f, -1.0f, -1.0f, 0xff0000ff},
+	{ 1.0f, -1.0f, -1.0f, 0xff00ff00},
+	{-1.0f,  1.0f, -1.0f, 0xffff0000},
+	{-1.0f,  1.0f, -1.0f, 0xffff0000},
+	{ 1.0f, -1.0f, -1.0f, 0xff00ff00},
+	{ 1.0f,  1.0f, -1.0f, 0xff00ffff}
 };
 
 class MageScene : public IScene {
@@ -38,16 +40,28 @@ public:
 private:
 	bgfx::VertexBufferHandle m_vbh;
 	bgfx::ProgramHandle m_program;
+	bgfx::TextureHandle m_texture;
 	uint64_t timeaccu = 0;
 
+	entt::registry m_registry;
+	SpriteRenderSystem* m_spriterenderer;
+
 	virtual bool onCreate() {
+		// init old rendering
 		Vertex_PosColor::init();
-		
 		m_vbh = bgfx::createVertexBuffer(
 					bgfx::makeRef(s_carVertices, sizeof(s_carVertices)),
 					Vertex_PosColor::ms_layout);
-		
 		m_program = assets::load_program("res/shader/jelly");
+		m_texture = assets::load_texture("res/image/dungeon.dds");
+
+		// init systems
+		m_spriterenderer = new SpriteRenderSystem(m_registry);
+		
+		// create entities
+		entt::entity entity = m_registry.create();
+		m_registry.emplace<Position>(entity, glm::vec2(0.0f, 0.5f));
+		m_registry.emplace<Sprite>(entity, glm::vec2(0.2f, 0.2f), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
 
 		return true;
 	}
@@ -84,11 +98,14 @@ private:
 		bgfx::setVertexBuffer(0, m_vbh);
 		bgfx::submit(0, m_program);
 
+		m_spriterenderer->render();
+
 		bgfx::frame();
 	}
 
 	virtual void onDestroy() {
-		bgfx::destroy(m_program);
+		delete m_spriterenderer;
+		bgfx::destroy(m_vbh);
 		bgfx::destroy(m_program);
 	}
 

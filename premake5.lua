@@ -17,6 +17,18 @@ function bxCompatIncludeDirs()
 		includedirs { path.join(PROJECT_DIR, "lib/bx/include/compat/osx/") }
 end
 
+function postBuildCompileShaders(programName)
+	-- TODO: support more platforms
+	local path = "res/shader/" .. programName .. "/"
+
+	postbuildcommands {
+		"bgfx-shaderc -f " .. path .. "vertex.sc   -o " .. path .. "gles/vertex.bin    --platform asm.js         --type vertex   -i lib/bgfx/src",
+		"bgfx-shaderc -f " .. path .. "fragment.sc -o " .. path .. "gles/fragment.bin  --platform asm.js         --type fragment -i lib/bgfx/src",
+		"bgfx-shaderc -f " .. path .. "vertex.sc   -o " .. path .. "spirv/vertex.bin   --platform linux -p spirv --type vertex   -i lib/bgfx/src",
+		"bgfx-shaderc -f " .. path .. "fragment.sc -o " .. path .. "spirv/fragment.bin --platform linux -p spirv --type fragment -i lib/bgfx/src"
+	}
+end
+
 workspace "newgame"
 	configurations { "debug", "release" }
 
@@ -121,23 +133,7 @@ workspace "newgame"
 		}
 
 		bxCompatIncludeDirs()
-	
-	--[[
-	project "sdl2"
-		kind "SharedLib"
-		
-		files {
-			path.join(PROJECT_DIR, "lib/sdl2/src/**.c"),
-		}
-		excludes {
-			path.join(PROJECT_DIR, "lib/sdl2/src/core/linux/SDL_fcitx.*"),
-		}
 
-		includedirs {
-			path.join(PROJECT_DIR, "lib/sdl2/include/"),
-			path.join(PROJECT_DIR, "lib/sdl2/src/**.h"),
-		}
-	]]
 
 	project "client"
 		kind "WindowedApp"
@@ -160,14 +156,9 @@ workspace "newgame"
 			path.join(PROJECT_DIR, "src/**.cpp"),
 		}
 
-		postbuildcommands {
-			-- meh... but it will do for now
-			"bgfx-shaderc -f res/shader/jelly/vertex.sc -o res/shader/jelly/gles/vertex.bin --platform asm.js --type vertex -i lib/bgfx/src",
-			"bgfx-shaderc -f res/shader/jelly/fragment.sc -o res/shader/jelly/gles/fragment.bin --platform asm.js --type fragment -i lib/bgfx/src",
-			"bgfx-shaderc -f res/shader/jelly/vertex.sc -o res/shader/jelly/spirv/vertex.bin --platform linux -p spirv --type vertex -i lib/bgfx/src",
-			"bgfx-shaderc -f res/shader/jelly/fragment.sc -o res/shader/jelly/spirv/fragment.bin --platform linux -p spirv --type fragment -i lib/bgfx/src",
-		}
-		
+		postBuildCompileShaders("jelly")
+		postBuildCompileShaders("sprite")
+
 		filter "platforms:linux*"
 			links {
 				"GL", "X11", -- Xrandr?

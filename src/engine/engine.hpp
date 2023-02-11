@@ -17,9 +17,7 @@ namespace engine {
 
 	// scene management
 	template <class T>
-	IScene* new_scene(const EngineContext& context) {
-		return new T();
-	}
+	IScene* new_scene(const EngineContext& context) { return new T(); }
 	void set_scene(EngineContext& context, IScene* newScene);
 
 	// utility functions
