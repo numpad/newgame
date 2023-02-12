@@ -1,7 +1,6 @@
 #include "engine/assets.hpp"
 
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
 #include <bgfx/bgfx.h>
 #include <bimg/decode.h>
 #include <glm/glm.hpp>

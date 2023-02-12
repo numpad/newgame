@@ -47,6 +47,8 @@ private:
 	entt::registry m_registry;
 	SpriteRenderSystem* m_spriterenderer;
 
+	entt::entity m_entity = entt::null;
+
 	virtual bool onCreate() {
 		// init old rendering
 		Vertex_PosColor::init();
@@ -70,24 +72,8 @@ private:
 	
 	virtual void onEvent(const SDL_Event& event) {
 		switch (event.type) {
-		case SDL_FINGERMOTION:
-			break;
 		case SDL_MOUSEMOTION:
 			break;
-		case SDL_FINGERUP: {
-			int width, height;
-			SDL_GetWindowSize(m_context->window, &width, &height);
-			const float aspect = float(width) / float(height);
-			const float x = (event.tfinger.x * 2.0f - 1.0f) * aspect;
-			const float y = (event.tfinger.y * 2.0f - 1.0f) * -1.0f;
-			const float dx = event.tfinger.dx;
-			const float dy = event.tfinger.dy;
-			entt::entity e = m_registry.create();
-			m_registry.emplace<Position>(e, glm::vec2(x, y));
-			m_registry.emplace<Velocity>(e, glm::vec2(dx * 0.1f, dy * 0.1f));
-			m_registry.emplace<Sprite>(e, glm::vec2(0.1f), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
-			break;
-		}
 		case SDL_MOUSEBUTTONDOWN: {
 			// create entities
 			int width, height;
@@ -102,22 +88,53 @@ private:
 
 			break;
 		}
-		case SDL_FINGERDOWN:
-			break;
 		case SDL_MOUSEBUTTONUP:
 			break;
+		case SDL_FINGERDOWN: {
+			int width, height;
+			SDL_GetWindowSize(m_context->window, &width, &height);
+			const float aspect = float(width) / float(height);
+			const float x = (event.tfinger.x * 2.0f - 1.0f) * aspect;
+			const float y = (event.tfinger.y * 2.0f - 1.0f) * -1.0f;
+			const float dx = event.tfinger.dx;
+			const float dy = event.tfinger.dy;
+			entt::entity e = m_registry.create();
+			m_registry.emplace<Position>(e, glm::vec2(x, y));
+			m_registry.emplace<Velocity>(e, glm::vec2(0.0f));
+			m_registry.emplace<Sprite>(e, glm::vec2(0.1f), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
+			break;
+		}
+		case SDL_FINGERMOTION: {
+			if (m_registry.valid(m_entity)) {
+				int width, height;
+				SDL_GetWindowSize(m_context->window, &width, &height);
+				const float aspect = float(width) / float(height);
+				const float x = (event.tfinger.x * 2.0f - 1.0f) * aspect;
+				const float y = (event.tfinger.y * 2.0f - 1.0f) * -1.0f;
+				const float dx = event.tfinger.dx;
+				const float dy = event.tfinger.dy;
+				m_registry.replace<Position>(m_entity, glm::vec2(x, y));
+				m_registry.replace<Velocity>(m_entity, glm::vec2(dx, dy) * 0.01f);
+			}
+			break;
+		}
+		case SDL_FINGERUP: {
+			m_entity = entt::null;
+			break;
+		}
 		};
 	}
 
 	virtual void onTick() {
 		timeaccu += 16;
 
-		m_registry.view<Position, Velocity>().each([](Position& pos, Velocity& vel) {
-			vel.vel.y -= 0.002f;
-
-			if (pos.pos.y < -1.0f) {
-				pos.pos.y = -1.0f;
+		m_registry.view<Position, Velocity, const Sprite>().each([](Position& pos, Velocity& vel, const Sprite& sprite) {
+			
+			if (pos.pos.y <= -1.0f + sprite.size.y) {
+				pos.pos.y = -1.0f + sprite.size.y;
 				vel.vel.y *= -0.5f;
+			} else {
+				vel.vel.y -= 0.002f;
 			}
 
 			if (glm::abs(vel.vel.y) < 0.0015f) {
@@ -134,8 +151,8 @@ private:
 		float time = engine::get_scenetime(*m_context) / 1000.0f;
 		float time2 = timeaccu / 1000.0f;
 		bgfx::dbgTextClear();
-		bgfx::dbgTextPrintf(1, 1, 0x0f, "seconds: %g", time);
-		bgfx::dbgTextPrintf(1, 2, 0x0f, "seconds: %g", time2);
+		bgfx::dbgTextPrintf(1, 1, 0x0f, "sys_time:  %g", time);
+		bgfx::dbgTextPrintf(1, 2, 0x0f, "deltatime: %g", time2);
 		
 		// render
 		int width, height;
