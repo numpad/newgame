@@ -10,6 +10,7 @@
 #include "engine/iscene.hpp"
 #include "engine/assets.hpp"
 #include "ecs/systems/SpriteRenderSystem.hpp"
+#include "ecs/components/velocity.hpp"
 
 struct Vertex_PosColor {
 	float m_x, m_y, m_z;
@@ -73,8 +74,20 @@ private:
 			break;
 		case SDL_MOUSEMOTION:
 			break;
-		case SDL_FINGERDOWN:
+		case SDL_FINGERUP: {
+			int width, height;
+			SDL_GetWindowSize(m_context->window, &width, &height);
+			const float aspect = float(width) / float(height);
+			const float x = (event.tfinger.x * 2.0f - 1.0f) * aspect;
+			const float y = (event.tfinger.y * 2.0f - 1.0f) * -1.0f;
+			const float dx = event.tfinger.dx;
+			const float dy = event.tfinger.dy;
+			entt::entity e = m_registry.create();
+			m_registry.emplace<Position>(e, glm::vec2(x, y));
+			m_registry.emplace<Velocity>(e, glm::vec2(dx * 0.1f, dy * 0.1f));
+			m_registry.emplace<Sprite>(e, glm::vec2(0.1f), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
 			break;
+		}
 		case SDL_MOUSEBUTTONDOWN: {
 			// create entities
 			int width, height;
@@ -84,11 +97,12 @@ private:
 			const float y = ((float(event.button.y) / float(height)) * 2.0f - 1.0f) * -1.0f;
 			entt::entity e = m_registry.create();
 			m_registry.emplace<Position>(e, glm::vec2(x, y));
+			m_registry.emplace<Velocity>(e, glm::vec2(0.0f));
 			m_registry.emplace<Sprite>(e, glm::vec2(0.1f), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
 
 			break;
 		}
-		case SDL_FINGERUP:
+		case SDL_FINGERDOWN:
 			break;
 		case SDL_MOUSEBUTTONUP:
 			break;
@@ -98,8 +112,19 @@ private:
 	virtual void onTick() {
 		timeaccu += 16;
 
-		m_registry.view<Position>().each([](Position& pos) {
-			pos.pos.y -= 0.01f;
+		m_registry.view<Position, Velocity>().each([](Position& pos, Velocity& vel) {
+			vel.vel.y -= 0.002f;
+
+			if (pos.pos.y < -1.0f) {
+				pos.pos.y = -1.0f;
+				vel.vel.y *= -0.5f;
+			}
+
+			if (glm::abs(vel.vel.y) < 0.0015f) {
+				vel.vel.y = 0.0f;
+			}
+
+			pos.pos += vel.vel;
 		});
 	}
 
@@ -124,8 +149,7 @@ private:
 		glm::mat4 model = glm::mat4(1.0f);
 		bgfx::setTransform(&model);
 
-		bgfx::setState(BGFX_STATE_WRITE_R | BGFX_STATE_WRITE_G
-		             | BGFX_STATE_WRITE_B | BGFX_STATE_WRITE_A); // and more?
+		bgfx::setState(BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A); // and more?
 
 		bgfx::setVertexBuffer(0, m_vbh);
 		bgfx::submit(0, m_program);
