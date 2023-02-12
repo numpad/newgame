@@ -22,6 +22,9 @@ void main_loop(void* data) {
 
 	// handle events
 	for (SDL_Event event; SDL_PollEvent(&event) != 0; ) {
+		
+		bool skipEvent = false;
+
 		switch (event.type) {
 		case SDL_QUIT:
 			ctx->quit = true;
@@ -35,17 +38,26 @@ void main_loop(void* data) {
 			}
 			break;
 		case SDL_MOUSEMOTION:
-			if (event.motion.which == SDL_TOUCH_MOUSEID) break;
+			if (event.motion.which == SDL_TOUCH_MOUSEID) {
+				skipEvent = true;
+				break;
+			}
 
 			printf("mouse move\n");
 			break;
 		case SDL_MOUSEBUTTONDOWN:
-			if (event.button.which == SDL_TOUCH_MOUSEID) break;
+			if (event.button.which == SDL_TOUCH_MOUSEID) {
+				skipEvent = true;
+				break;
+			}
 
 			printf("mouse down\n");
 			break;
 		case SDL_MOUSEBUTTONUP:
-			if (event.button.which == SDL_TOUCH_MOUSEID) break;
+			if (event.button.which == SDL_TOUCH_MOUSEID) {
+				skipEvent = true;
+				break;
+			}
 
 			printf("mouse up\n");
 			break;
@@ -59,6 +71,9 @@ void main_loop(void* data) {
 			printf("finger up\n");
 			break;
 		}
+
+		// trigger scene event
+		if (ctx->scene != nullptr && !skipEvent) ctx->scene->event(event);
 	}
 	
 	// render

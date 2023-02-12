@@ -1,5 +1,6 @@
 #pragma once
 
+#include <SDL2/SDL.h>
 #include <bgfx/bgfx.h>
 #include <bx/bx.h>
 #include <glm/glm.hpp>
@@ -43,7 +44,6 @@ private:
 	uint64_t timeaccu = 0;
 
 	entt::registry m_registry;
-	entt::entity m_entity = entt::null;
 	SpriteRenderSystem* m_spriterenderer;
 
 	virtual bool onCreate() {
@@ -58,16 +58,49 @@ private:
 		// init systems
 		m_spriterenderer = new SpriteRenderSystem(m_registry);
 		
-		// create entities
-		m_entity = m_registry.create();
-		m_registry.emplace<Position>(m_entity, glm::vec2(0.0f, 0.5f));
-		m_registry.emplace<Sprite>(m_entity, glm::vec2(0.8f, 0.8f), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
-
 		return true;
 	}
 	
+	virtual void onDestroy() {
+		delete m_spriterenderer;
+		bgfx::destroy(m_vbh);
+		bgfx::destroy(m_program);
+	}
+	
+	virtual void onEvent(const SDL_Event& event) {
+		switch (event.type) {
+		case SDL_FINGERMOTION:
+			break;
+		case SDL_MOUSEMOTION:
+			break;
+		case SDL_FINGERDOWN:
+			break;
+		case SDL_MOUSEBUTTONDOWN: {
+			// create entities
+			int width, height;
+			SDL_GetWindowSize(m_context->window, &width, &height);
+			const float aspect = float(width) / float(height);
+			const float x = ((float(event.button.x) / float(width)) * 2.0f - 1.0f) * aspect;
+			const float y = ((float(event.button.y) / float(height)) * 2.0f - 1.0f) * -1.0f;
+			entt::entity e = m_registry.create();
+			m_registry.emplace<Position>(e, glm::vec2(x, y));
+			m_registry.emplace<Sprite>(e, glm::vec2(0.1f), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
+
+			break;
+		}
+		case SDL_FINGERUP:
+			break;
+		case SDL_MOUSEBUTTONUP:
+			break;
+		};
+	}
+
 	virtual void onTick() {
 		timeaccu += 16;
+
+		m_registry.view<Position>().each([](Position& pos) {
+			pos.pos.y -= 0.01f;
+		});
 	}
 
 	virtual void onUpdate() {
@@ -101,12 +134,5 @@ private:
 
 		bgfx::frame();
 	}
-
-	virtual void onDestroy() {
-		delete m_spriterenderer;
-		bgfx::destroy(m_vbh);
-		bgfx::destroy(m_program);
-	}
-	
 };
 

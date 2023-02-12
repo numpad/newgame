@@ -25,12 +25,12 @@ struct VertexPosSubrectColor {
 bgfx::VertexLayout VertexPosSubrectColor::ms_layout;
 
 static VertexPosSubrectColor s_vertices[] = {
-	{-1.0f, -1.0f, 0.0f,  0.0f, 0.0f,  0xff0000ff},
-	{ 1.0f, -1.0f, 0.0f,  1.0f, 0.0f,  0xff0000ff},
-	{-1.0f,  1.0f, 0.0f,  0.0f, 1.0f,  0xffff0000},
-	{-1.0f,  1.0f, 0.0f,  0.0f, 1.0f,  0xffff0000},
-	{ 1.0f, -1.0f, 0.0f,  1.0f, 0.0f,  0xff0000ff},
-	{ 1.0f,  1.0f, 0.0f,  1.0f, 1.0f,  0xffff0000}
+	{-1.0f, -1.0f, 0.0f,  0.0625f * 0.0f, 0.0625f * 2.0f,  0xff0000ff},
+	{ 1.0f, -1.0f, 0.0f,  0.0625f * 1.0f, 0.0625f * 2.0f,  0xff0000ff},
+	{-1.0f,  1.0f, 0.0f,  0.0625f * 0.0f, 0.0625f * 1.0f,  0xffff0000},
+	{-1.0f,  1.0f, 0.0f,  0.0625f * 0.0f, 0.0625f * 1.0f,  0xffff0000},
+	{ 1.0f, -1.0f, 0.0f,  0.0625f * 1.0f, 0.0625f * 2.0f,  0xff0000ff},
+	{ 1.0f,  1.0f, 0.0f,  0.0625f * 1.0f, 0.0625f * 1.0f,  0xffff0000}
 };
 
 class SpriteRenderSystem {
@@ -54,8 +54,6 @@ public:
 	}
 
 	void render() const {
-		bgfx::setVertexBuffer(0, m_vbh);
-		bgfx::setState(BGFX_STATE_WRITE_RGB | BGFX_STATE_BLEND_ALPHA);
 
 		m_registry.view<const Position, const Sprite>().each([&](const Position& pos, const Sprite& sprite) {
 			glm::mat4 transform = glm::scale(
@@ -64,6 +62,8 @@ public:
 				glm::vec3(sprite.size.x, sprite.size.y, 0.0f)
 			);
 			
+			bgfx::setVertexBuffer(0, m_vbh);
+			bgfx::setState(BGFX_STATE_WRITE_RGB | BGFX_STATE_BLEND_ALPHA);
 			bgfx::setTransform(&transform);
 			bgfx::setTexture(0, m_utexture, m_texture);
 			bgfx::submit(0, m_program);

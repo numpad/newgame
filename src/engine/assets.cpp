@@ -76,7 +76,7 @@ namespace assets {
 	bgfx::TextureHandle load_texture(const char* path, glm::ivec2* dimensions) {
 		glm::ivec2 size;
 		int channels;
-		stbi_set_flip_vertically_on_load(true);
+		stbi_set_flip_vertically_on_load(false);
 
 		uint8_t* data = stbi_load(path, &size.x, &size.y, &channels, 0);
 		
