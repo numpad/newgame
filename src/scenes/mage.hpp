@@ -98,10 +98,10 @@ private:
 			const float y = (event.tfinger.y * 2.0f - 1.0f) * -1.0f;
 			const float dx = event.tfinger.dx;
 			const float dy = event.tfinger.dy;
-			entt::entity e = m_registry.create();
-			m_registry.emplace<Position>(e, glm::vec2(x, y));
-			m_registry.emplace<Velocity>(e, glm::vec2(0.0f));
-			m_registry.emplace<Sprite>(e, glm::vec2(0.1f), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
+			m_entity = m_registry.create();
+			m_registry.emplace<Position>(m_entity, glm::vec2(x, y));
+			m_registry.emplace<Velocity>(m_entity, glm::vec2(0.0f));
+			m_registry.emplace<Sprite>(m_entity, glm::vec2(0.1f), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
 			break;
 		}
 		case SDL_FINGERMOTION: {
@@ -112,9 +112,9 @@ private:
 				const float x = (event.tfinger.x * 2.0f - 1.0f) * aspect;
 				const float y = (event.tfinger.y * 2.0f - 1.0f) * -1.0f;
 				const float dx = event.tfinger.dx;
-				const float dy = event.tfinger.dy;
+				const float dy = event.tfinger.dy * -1.0f;
 				m_registry.replace<Position>(m_entity, glm::vec2(x, y));
-				m_registry.replace<Velocity>(m_entity, glm::vec2(dx, dy) * 0.01f);
+				m_registry.replace<Velocity>(m_entity, glm::vec2(dx, dy) * 3.0f);
 			}
 			break;
 		}
@@ -128,8 +128,9 @@ private:
 	virtual void onTick() {
 		timeaccu += 16;
 
-		m_registry.view<Position, Velocity, const Sprite>().each([](Position& pos, Velocity& vel, const Sprite& sprite) {
-			
+		m_registry.view<Position, Velocity, const Sprite>().each([&](const entt::entity entity, Position& pos, Velocity& vel, const Sprite& sprite) {
+			if (entity == m_entity) return;
+
 			if (pos.pos.y <= -1.0f + sprite.size.y) {
 				pos.pos.y = -1.0f + sprite.size.y;
 				vel.vel.y *= -0.5f;

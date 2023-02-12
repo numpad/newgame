@@ -4,4 +4,6 @@ obj/
 Makefile
 *.make
 temp/
+.cache/
+compile_commands.json
 
