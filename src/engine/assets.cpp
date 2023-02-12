@@ -81,7 +81,7 @@ namespace assets {
 		uint8_t* data = stbi_load(path, &size.x, &size.y, &channels, 0);
 		
 		const uint32_t flags = BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP | BGFX_SAMPLER_MIN_POINT | BGFX_SAMPLER_MAG_POINT;
-		bgfx::TextureHandle handle = bgfx::createTexture2D( size.x, size.y, false, 1, bgfx::TextureFormat::RGBA8, flags, bgfx::copy(data, size.x * size.y * channels));
+		bgfx::TextureHandle handle = bgfx::createTexture2D(size.x, size.y, false, 1, bgfx::TextureFormat::RGBA8, flags, bgfx::copy(data, size.x * size.y * channels));
 
 		if (!bgfx::isValid(handle)) {
 			printf("failed loading texture '%s'\n", path);

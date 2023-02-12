@@ -6,7 +6,7 @@
 class IScene {
 public:
 	
-	EngineContext* m_context = nullptr;
+	engine::Context* m_context = nullptr;
 
 	virtual ~IScene() = default;
 

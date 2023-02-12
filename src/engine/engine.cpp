@@ -12,7 +12,7 @@
 #include <string>
 
 namespace engine {
-	void init(EngineContext& context) {
+	void init(Context& context) {
 
 		// init sdl
 		if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_GAMECONTROLLER | SDL_INIT_TIMER) < 0) {
@@ -62,8 +62,8 @@ namespace engine {
 		
 	}
 
-	void destroy(EngineContext& context) {
-		engine::set_scene(context, nullptr);
+	void destroy(Context& context) {
+		set_scene(context, nullptr);
 
 		bgfx::shutdown();
 		SDL_DestroyWindow(context.window);
@@ -71,7 +71,7 @@ namespace engine {
 		printf(" .~*  Bye World  *~.\n");
 	}
 
-	void set_scene(EngineContext& context, IScene* newScene) {
+	void set_scene(Context& context, IScene* newScene) {
 		if (context.scene) {
 			context.scene->destroy();
 			delete context.scene;
@@ -84,7 +84,7 @@ namespace engine {
 		}
 	}
 
-	uint64_t get_scenetime(const EngineContext& context) {
+	uint64_t get_scenetime(const Context& context) {
 		if (!context.scene->get_createdtime()) return 0;
 	
 		return SDL_GetTicks64() - context.scene->get_createdtime();

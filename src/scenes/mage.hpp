@@ -40,28 +40,28 @@ public:
 private:
 	bgfx::VertexBufferHandle m_vbh;
 	bgfx::ProgramHandle m_program;
-	bgfx::TextureHandle m_texture;
 	uint64_t timeaccu = 0;
 
 	entt::registry m_registry;
+	entt::entity m_entity = entt::null;
 	SpriteRenderSystem* m_spriterenderer;
 
 	virtual bool onCreate() {
 		// init old rendering
 		Vertex_PosColor::init();
+
 		m_vbh = bgfx::createVertexBuffer(
 					bgfx::makeRef(s_carVertices, sizeof(s_carVertices)),
 					Vertex_PosColor::ms_layout);
 		m_program = assets::load_program("res/shader/jelly");
-		m_texture = assets::load_texture("res/image/dungeon.png");
 
 		// init systems
 		m_spriterenderer = new SpriteRenderSystem(m_registry);
 		
 		// create entities
-		entt::entity entity = m_registry.create();
-		m_registry.emplace<Position>(entity, glm::vec2(0.0f, 0.5f));
-		m_registry.emplace<Sprite>(entity, glm::vec2(0.2f, 0.2f), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
+		m_entity = m_registry.create();
+		m_registry.emplace<Position>(m_entity, glm::vec2(0.0f, 0.5f));
+		m_registry.emplace<Sprite>(m_entity, glm::vec2(0.8f, 0.8f), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
 
 		return true;
 	}
@@ -78,7 +78,6 @@ private:
 		bgfx::dbgTextClear();
 		bgfx::dbgTextPrintf(1, 1, 0x0f, "seconds: %g", time);
 		bgfx::dbgTextPrintf(1, 2, 0x0f, "seconds: %g", time2);
-		bgfx::dbgTextPrintf(1, 3, 0x0f, "   diff: %g", time - time2);
 		
 		// render
 		int width, height;
@@ -104,11 +103,10 @@ private:
 	}
 
 	virtual void onDestroy() {
-		bgfx::destroy(m_texture);
 		delete m_spriterenderer;
 		bgfx::destroy(m_vbh);
 		bgfx::destroy(m_program);
 	}
-
+	
 };
 

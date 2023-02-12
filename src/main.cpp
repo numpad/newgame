@@ -18,7 +18,7 @@
 #include "scenes/mage.hpp"
 
 void main_loop(void* data) {
-	EngineContext* ctx = static_cast<EngineContext*>(data);
+	engine::Context* ctx = static_cast<engine::Context*>(data);
 
 	// handle events
 	for (SDL_Event event; SDL_PollEvent(&event) != 0; ) {
@@ -96,7 +96,7 @@ int main() {
 	printf(" .~* Hello World *~.\n");
 	
 	// init
-	EngineContext context;
+	engine::Context context;
 	engine::init(context);
 
 	// scene setup

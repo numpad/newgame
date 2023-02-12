@@ -4,25 +4,25 @@
 
 class IScene;
 
-struct EngineContext {
-	bool quit = false;
-	SDL_Window* window = nullptr;
-	IScene* scene = nullptr;
-};
-
 namespace engine {
+	struct Context {
+		bool quit = false;
+		SDL_Window* window = nullptr;
+		IScene* scene = nullptr;
+	};
+	
 	// general engine
-	void init(EngineContext& context);
-	void destroy(EngineContext& context);
+	void init(Context& context);
+	void destroy(Context& context);
 
 	// scene management
 	template <class T>
-	IScene* new_scene(const EngineContext& context) { return new T(); }
-	void set_scene(EngineContext& context, IScene* newScene);
+	IScene* new_scene(const Context& context) { return new T(); }
+	void set_scene(Context& context, IScene* newScene);
 
 	// utility functions
 	
 	/** Returns the time since last scene creation in milliseconds. */
-	uint64_t get_scenetime(const EngineContext& context);
+	uint64_t get_scenetime(const Context& context);
 }
 

@@ -5,6 +5,7 @@ PROJECT_DIR = path.getabsolute('.')
 
 -- toolchain
 require "lib/premake-modules/emscripten"
+require "lib/premake-modules/shaderc"
 
 -- helpers
 function bxCompatIncludeDirs()
@@ -15,18 +16,6 @@ function bxCompatIncludeDirs()
 		includedirs { path.join(PROJECT_DIR, "lib/bx/include/compat/msvc/") }
 	filter "platforms:osx*"
 		includedirs { path.join(PROJECT_DIR, "lib/bx/include/compat/osx/") }
-end
-
-function postBuildCompileShaders(programName)
-	-- TODO: support more platforms
-	local path = "res/shader/" .. programName .. "/"
-
-	postbuildcommands {
-		"bgfx-shaderc -f " .. path .. "vertex.sc   -o " .. path .. "gles/vertex.bin    --platform asm.js         --type vertex   -i lib/bgfx/src",
-		"bgfx-shaderc -f " .. path .. "fragment.sc -o " .. path .. "gles/fragment.bin  --platform asm.js         --type fragment -i lib/bgfx/src",
-		"bgfx-shaderc -f " .. path .. "vertex.sc   -o " .. path .. "spirv/vertex.bin   --platform linux -p spirv --type vertex   -i lib/bgfx/src",
-		"bgfx-shaderc -f " .. path .. "fragment.sc -o " .. path .. "spirv/fragment.bin --platform linux -p spirv --type fragment -i lib/bgfx/src"
-	}
 end
 
 workspace "newgame"
@@ -156,9 +145,6 @@ workspace "newgame"
 		files {
 			path.join(PROJECT_DIR, "src/**.cpp"),
 		}
-
-		postBuildCompileShaders("jelly")
-		postBuildCompileShaders("sprite")
 
 		filter "platforms:linux*"
 			links {

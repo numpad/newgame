@@ -26,11 +26,11 @@ bgfx::VertexLayout VertexPosSubrectColor::ms_layout;
 
 static VertexPosSubrectColor s_vertices[] = {
 	{-1.0f, -1.0f, 0.0f,  0.0f, 0.0f,  0xff0000ff},
-	{ 1.0f, -1.0f, 0.0f,  0.0f, 0.0f,  0xff0000ff},
-	{-1.0f,  1.0f, 0.0f,  0.0f, 0.0f,  0xffff0000},
-	{-1.0f,  1.0f, 0.0f,  0.0f, 0.0f,  0xffff0000},
-	{ 1.0f, -1.0f, 0.0f,  0.0f, 0.0f,  0xff0000ff},
-	{ 1.0f,  1.0f, 0.0f,  0.0f, 0.0f,  0xffff0000}
+	{ 1.0f, -1.0f, 0.0f,  1.0f, 0.0f,  0xff0000ff},
+	{-1.0f,  1.0f, 0.0f,  0.0f, 1.0f,  0xffff0000},
+	{-1.0f,  1.0f, 0.0f,  0.0f, 1.0f,  0xffff0000},
+	{ 1.0f, -1.0f, 0.0f,  1.0f, 0.0f,  0xff0000ff},
+	{ 1.0f,  1.0f, 0.0f,  1.0f, 1.0f,  0xffff0000}
 };
 
 class SpriteRenderSystem {
@@ -41,26 +41,31 @@ public:
 
 		m_vbh = bgfx::createVertexBuffer(bgfx::makeRef(s_vertices, sizeof(s_vertices)), VertexPosSubrectColor::ms_layout);
 		m_program = assets::load_program("res/shader/sprite");
-
+		m_texture = assets::load_texture("res/image/dungeon.png");
+		m_utexture = bgfx::createUniform("u_texture", bgfx::UniformType::Sampler);
+		
 	}
 
 	~SpriteRenderSystem() {
+		bgfx::destroy(m_texture);
+		bgfx::destroy(m_utexture);
 		bgfx::destroy(m_vbh);
 		bgfx::destroy(m_program);
 	}
 
 	void render() const {
 		bgfx::setVertexBuffer(0, m_vbh);
-		bgfx::setState(BGFX_STATE_WRITE_RGB);
+		bgfx::setState(BGFX_STATE_WRITE_RGB | BGFX_STATE_BLEND_ALPHA);
 
 		m_registry.view<const Position, const Sprite>().each([&](const Position& pos, const Sprite& sprite) {
 			glm::mat4 transform = glm::scale(
 				glm::translate(glm::mat4(1.0f),
 					glm::vec3(pos.pos, 0.0f)),
-				glm::vec3(0.2f, 0.2f, 0.0f)
+				glm::vec3(sprite.size.x, sprite.size.y, 0.0f)
 			);
 			
 			bgfx::setTransform(&transform);
+			bgfx::setTexture(0, m_utexture, m_texture);
 			bgfx::submit(0, m_program);
 		});
 	}
@@ -69,6 +74,8 @@ private:
 	entt::registry& m_registry;
 	bgfx::VertexBufferHandle m_vbh;
 	bgfx::ProgramHandle m_program;
+	bgfx::TextureHandle m_texture;
+	bgfx::UniformHandle m_utexture;
 
 };
 
