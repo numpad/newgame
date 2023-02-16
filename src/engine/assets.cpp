@@ -75,13 +75,25 @@ namespace assets {
 	bgfx::TextureHandle load_texture(const char* path, glm::ivec2* dimensions) {
 		glm::ivec2 size;
 		int channels;
-		stbi_set_flip_vertically_on_load(false);
+		stbi_set_flip_vertically_on_load(true);
 
 		uint8_t* data = stbi_load(path, &size.x, &size.y, &channels, 0);
+		if (data == nullptr) {
+			printf("failed loading image '%s'\n", path);
+			return BGFX_INVALID_HANDLE;
+		}
 		
 		const uint32_t flags = BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP | BGFX_SAMPLER_MIN_POINT | BGFX_SAMPLER_MAG_POINT;
-		bgfx::TextureHandle handle = bgfx::createTexture2D(size.x, size.y, false, 1, bgfx::TextureFormat::RGBA8, flags, bgfx::copy(data, size.x * size.y * channels));
+		bgfx::TextureFormat::Enum texture_format;
+		switch (channels) {
+		case 1: texture_format = bgfx::TextureFormat::R8; break;
+		case 2: texture_format = bgfx::TextureFormat::RG8; break;
+		case 3: texture_format = bgfx::TextureFormat::RGB8; break;
+		case 4: texture_format = bgfx::TextureFormat::RGBA8; break;
+		default: texture_format = bgfx::TextureFormat::Unknown; break;
+		};
 
+		bgfx::TextureHandle handle = bgfx::createTexture2D(size.x, size.y, false, 1, texture_format, flags, bgfx::copy(data, size.x * size.y * channels));
 		if (!bgfx::isValid(handle)) {
 			printf("failed loading texture '%s'\n", path);
 			return BGFX_INVALID_HANDLE;
