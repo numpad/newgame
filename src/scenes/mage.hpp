@@ -10,6 +10,8 @@
 #include "engine/iscene.hpp"
 #include "engine/assets.hpp"
 #include "ecs/systems/SpriteRenderSystem.hpp"
+#include "ecs/systems/EnemyMoveSystem.hpp"
+#include "ecs/systems/DamageSystem.hpp"
 #include "ecs/prefabs.hpp"
 #include "ecs/components/velocity.hpp"
 #include "ecs/components/player.hpp"
@@ -29,7 +31,7 @@ struct Vertex_PosColor {
 };
 bgfx::VertexLayout Vertex_PosColor::ms_layout;
 
-static Vertex_PosColor s_carVertices[] = {
+static Vertex_PosColor s_bgVertices[] = {
 	{-1.0f, -1.0f, -1.0f, 0xff0000ff},
 	{ 1.0f, -1.0f, -1.0f, 0xff00ff00},
 	{-1.0f,  1.0f, -1.0f, 0xffff0000},
@@ -44,12 +46,15 @@ class MageScene : public IScene {
 	bgfx::ProgramHandle m_program;
 	bgfx::TextureHandle m_bgTexture;
 	bgfx::UniformHandle m_bgTextureU;
-	glm::vec2 m_bgOffset;
 	bgfx::UniformHandle m_bgOffsetU;
 
 	// ecs
 	entt::registry m_registry;
 	SpriteRenderSystem* m_spriterenderer;
+	EnemyMoveSystem* m_enemymover;
+	DamageSystem* m_damagesystem;
+
+	entt::entity m_player = entt::null;
 	
 	// general
 	bool m_dragging = false;
@@ -61,7 +66,7 @@ class MageScene : public IScene {
 		Vertex_PosColor::init();
 
 		m_vbh = bgfx::createVertexBuffer(
-					bgfx::makeRef(s_carVertices, sizeof(s_carVertices)),
+					bgfx::makeRef(s_bgVertices, sizeof(s_bgVertices)),
 					Vertex_PosColor::ms_layout);
 		m_program = assets::load_program("res/shader/jelly");
 		m_bgTexture = assets::load_texture("res/image/proto.png");
@@ -70,15 +75,31 @@ class MageScene : public IScene {
 
 		// init systems
 		m_spriterenderer = new SpriteRenderSystem(m_registry);
+		m_enemymover = new EnemyMoveSystem(m_registry);
+		m_damagesystem = new DamageSystem(m_registry);
 
 		// create player
-		entt::entity player = prefabs::player(m_registry);
+		m_player = prefabs::player(m_registry);
+
+		entt::entity enemy = prefabs::base_enemy(m_registry);
+		m_registry.emplace<MoveTowards>(enemy, m_player);
+
+		for (int x = 0; x < 5; ++x) {
+			for (int y = 0; y < 5; ++y) {
+				entt::entity item = m_registry.create();
+				m_registry.emplace<Position>(item, glm::vec2(-40.0f + x * 20.0f, -40.0f + y * 20.0f));
+				m_registry.emplace<Sprite>(item, glm::vec2(16.0f), glm::vec4(0.0f));
+			}
+		}
+
 		
 		return true;
 	}
 	
 	virtual void onDestroy() {
 		delete m_spriterenderer;
+		delete m_enemymover;
+		delete m_damagesystem;
 		bgfx::destroy(m_vbh);
 		bgfx::destroy(m_program);
 		bgfx::destroy(m_bgTexture);
@@ -125,12 +146,19 @@ class MageScene : public IScene {
 	virtual void onTick() {
 		timeaccu += 16;
 		
-		const glm::vec2 dragdir = (m_dragstart - m_dragcurrent);
+		const glm::vec2 dragdir = (m_dragcurrent - m_dragstart) * glm::vec2(1.0f, -1.0f);
 		if (m_dragging && glm::length(dragdir) > 0.05f) {
-			const glm::vec2 drag = glm::normalize(dragdir) * glm::vec2(1.0f, -1.0f) * 0.01f;
+			const glm::vec2 drag = glm::normalize(dragdir) * 0.01f;
 
-			m_bgOffset += drag;
+			// move player
+			Position* player_pos = m_registry.try_get<Position>(m_player);
+			if (player_pos) {
+				player_pos->pos += glm::normalize(dragdir) * 5.0f;
+			}
 		}
+
+		m_enemymover->tick();
+		m_damagesystem->tick();
 		
 	}
 
@@ -149,14 +177,15 @@ class MageScene : public IScene {
 		const float aspect = float(width) / float(height);
 		
 		// matrices
+		const Position* player_pos = m_registry.try_get<Position>(m_player);
 		glm::mat4 proj = glm::ortho(-width * 0.5f, width * 0.5f, -height * 0.5f, height * 0.5f, -1.0f, 1.0f);
-		glm::mat4 view = glm::mat4(1.0f);
+		glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(-player_pos->pos, 0.0f));
 		glm::mat4 model = glm::mat4(1.0f);
 		bgfx::setViewTransform(0, &view, &proj);
 		bgfx::setTransform(&model);
 
 		// draw background
-		const glm::vec2 offset = glm::fract(m_bgOffset * 0.5f) * 2.0f;
+		const glm::vec2 offset = -/*glm::fract*/(player_pos->pos * 0.5f) * 2.0f;
 
 		bgfx::setUniform(m_bgOffsetU, &offset);
 		bgfx::setState(BGFX_STATE_WRITE_RGB); // and more?
