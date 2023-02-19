@@ -62,6 +62,63 @@ namespace engine {
 		
 	}
 
+	void update(Context& context) {
+		// handle events
+		for (SDL_Event event; SDL_PollEvent(&event) != 0; ) {
+			
+			bool skipEvent = false;
+
+			switch (event.type) {
+			case SDL_QUIT:
+				context.quit = true;
+				break;
+			case SDL_WINDOWEVENT:
+				if (event.window.event == SDL_WINDOWEVENT_RESIZED || event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
+					const int width = event.window.data1;
+					const int height = event.window.data2;
+					printf("resize to %dx%d\n", width, height);
+					bgfx::reset(width, height, BGFX_RESET_VSYNC);
+					bgfx::setViewRect(0, 0, 0, width, height);
+				}
+				break;
+			case SDL_MOUSEMOTION:
+			case SDL_MOUSEBUTTONDOWN:
+			case SDL_MOUSEBUTTONUP:
+				if (event.motion.which == SDL_TOUCH_MOUSEID) {
+					skipEvent = true;
+					break;
+				}
+				break;
+			}
+
+			// trigger scene event
+			if (context.scene != nullptr && !skipEvent) context.scene->event(event);
+		}
+		
+		// render
+		if (context.scene != nullptr) {
+			// timestep
+			static uint64_t _time_ms = 0;
+			const uint64_t _dt_ms = 16;
+			static uint64_t _currenttime_ms = engine::get_scenetime(context);
+			static uint64_t _accumulator = 0;
+
+			const uint64_t newtime = engine::get_scenetime(context);
+			const uint64_t frametime = newtime - _currenttime_ms;
+			_currenttime_ms = newtime;
+
+			_accumulator += frametime;
+
+			while (_accumulator >= _dt_ms) {
+				context.scene->tick();
+				_accumulator -= _dt_ms;
+				_time_ms += _dt_ms;
+			}
+
+			context.scene->update();
+		}
+	}
+
 	void destroy(Context& context) {
 		set_scene(context, nullptr);
 

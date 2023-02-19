@@ -15,6 +15,8 @@ namespace engine {
 	void init(Context& context);
 	void destroy(Context& context);
 
+	void update(Context& context);
+
 	// scene management
 	template <class T>
 	IScene* new_scene(const Context& context) { return new T(); }

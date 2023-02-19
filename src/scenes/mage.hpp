@@ -12,6 +12,8 @@
 #include "ecs/systems/SpriteRenderSystem.hpp"
 #include "ecs/systems/EnemyMoveSystem.hpp"
 #include "ecs/systems/DamageSystem.hpp"
+#include "ecs/systems/ItemCollectSystem.hpp"
+#include "ecs/systems/DeleteSystem.hpp"
 #include "ecs/prefabs.hpp"
 #include "ecs/components/velocity.hpp"
 #include "ecs/components/player.hpp"
@@ -53,6 +55,8 @@ class MageScene : public IScene {
 	SpriteRenderSystem* m_spriterenderer;
 	EnemyMoveSystem* m_enemymover;
 	DamageSystem* m_damagesystem;
+	ItemCollectSystem* m_itemcollectsystem;
+	DeleteSystem* m_deletesystem;
 
 	entt::entity m_player = entt::null;
 	
@@ -77,6 +81,8 @@ class MageScene : public IScene {
 		m_spriterenderer = new SpriteRenderSystem(m_registry);
 		m_enemymover = new EnemyMoveSystem(m_registry);
 		m_damagesystem = new DamageSystem(m_registry);
+		m_itemcollectsystem = new ItemCollectSystem(m_registry);
+		m_deletesystem = new DeleteSystem(m_registry);
 
 		// create player
 		m_player = prefabs::player(m_registry);
@@ -86,9 +92,8 @@ class MageScene : public IScene {
 
 		for (int x = 0; x < 5; ++x) {
 			for (int y = 0; y < 5; ++y) {
-				entt::entity item = m_registry.create();
-				m_registry.emplace<Position>(item, glm::vec2(-40.0f + x * 20.0f, -40.0f + y * 20.0f));
-				m_registry.emplace<Sprite>(item, glm::vec2(16.0f), glm::vec4(0.0f));
+				entt::entity item = prefabs::item_mana(m_registry);
+				m_registry.replace<Position>(item, glm::vec2(-80.0f + x * 40.0f, -80.0f + y * 40.0f));
 			}
 		}
 
@@ -100,6 +105,8 @@ class MageScene : public IScene {
 		delete m_spriterenderer;
 		delete m_enemymover;
 		delete m_damagesystem;
+		delete m_itemcollectsystem;
+		delete m_deletesystem;
 		bgfx::destroy(m_vbh);
 		bgfx::destroy(m_program);
 		bgfx::destroy(m_bgTexture);
@@ -122,8 +129,11 @@ class MageScene : public IScene {
 			m_dragcurrent = glm::vec2(float(event.motion.x), float(event.motion.y));
 			break;
 		case SDL_FINGERDOWN: {
+			int width, height;
+			SDL_GetWindowSize(m_context->window, &width, &height);
+			
 			m_dragging = true;
-			m_dragstart = glm::vec2(event.tfinger.x, event.tfinger.y);
+			m_dragstart = glm::vec2(event.tfinger.x, event.tfinger.y) * glm::vec2(float(width), float(height));
 			m_dragcurrent = m_dragstart;
 			//int width, height;
 			//SDL_GetWindowSize(m_context->window, &width, &height);
@@ -137,7 +147,10 @@ class MageScene : public IScene {
 			break;
 		}
 		case SDL_FINGERMOTION: {
-			m_dragcurrent = glm::vec2(float(event.tfinger.x), float(event.tfinger.y));
+			int width, height;
+			SDL_GetWindowSize(m_context->window, &width, &height);
+
+			m_dragcurrent = glm::vec2(event.tfinger.x, event.tfinger.y) * glm::vec2(float(width), float(height));
 			break;
 		}
 		};
@@ -152,14 +165,17 @@ class MageScene : public IScene {
 
 			// move player
 			Position* player_pos = m_registry.try_get<Position>(m_player);
+			Player* player = m_registry.try_get<Player>(m_player);
 			if (player_pos) {
-				player_pos->pos += glm::normalize(dragdir) * 5.0f;
+				player_pos->pos += glm::normalize(dragdir) * player->move_speed;
 			}
 		}
-
+		
+		// tick systems
 		m_enemymover->tick();
 		m_damagesystem->tick();
-		
+		m_itemcollectsystem->tick();
+		m_deletesystem->tick();
 	}
 
 	virtual void onUpdate() {
@@ -170,6 +186,10 @@ class MageScene : public IScene {
 		bgfx::dbgTextClear();
 		bgfx::dbgTextPrintf(1, 1, 0x0f, "sys: %g", time);
 		bgfx::dbgTextPrintf(1, 2, 0x0f, " dt: %g", time2);
+
+		const Player& player = m_registry.get<const Player>(m_player);
+		bgfx::dbgTextPrintf(1, 4, 0x0f, "- Player -");
+		bgfx::dbgTextPrintf(1, 5, 0x0f, "Mana: %g", player.mana);
 		
 		// render
 		int width, height;

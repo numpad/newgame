@@ -1,6 +1,8 @@
 #pragma once
 
 struct Player {
-	void* _dummy;
+	float collect_radius;
+	float mana;
+	float move_speed;
 };
 

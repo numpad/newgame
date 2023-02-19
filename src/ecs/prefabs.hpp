@@ -8,5 +8,6 @@ namespace prefabs {
 
 	entt::entity base_enemy(entt::registry& registry);
 
+	entt::entity item_mana(entt::registry& registry);
 }
 
