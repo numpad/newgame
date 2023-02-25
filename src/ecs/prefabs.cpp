@@ -14,7 +14,7 @@ namespace prefabs {
 		entt::entity e = registry.create();
 		registry.emplace<Position>(e, glm::vec2(0.0f, 0.0f));
 		registry.emplace<Sprite>(e, glm::vec2(32.0f), glm::vec4(0.0f));
-		registry.emplace<Player>(e, 28.0f, 0.0f, 5.0f);
+		registry.emplace<Player>(e, 28.0f, 0.0f, 3.0f);
 		return e;
 	}
 

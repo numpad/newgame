@@ -12,6 +12,30 @@
 #include <string>
 
 namespace engine {
+	
+	void timestep_init(const Context& context, Timestep& timestep) {
+		timestep.time = 0;
+		timestep.dt = 16;
+		printf("initialized timestep\n");
+		timestep.currenttime = engine::get_scenetime(context);
+		timestep.accumulator = 0;
+		timestep.remaining_ticks = 0;
+	}
+
+	void timestep_advance(const Context& context, Timestep& timestep) {
+		const uint64_t newtime = engine::get_scenetime(context);
+		const uint64_t frametime = newtime - timestep.currenttime;
+		timestep.currenttime = newtime;
+
+		timestep.accumulator += frametime;
+		
+		while (timestep.accumulator >= timestep.dt) {
+			timestep.remaining_ticks++;
+			timestep.accumulator -= timestep.dt;
+			timestep.time += timestep.dt;
+		}
+	}
+
 	void init(Context& context) {
 
 		// init sdl
@@ -60,6 +84,8 @@ namespace engine {
 		bgfx::setViewClear(0, BGFX_CLEAR_COLOR, 0x333333ff, 1.0f, 0);
 		bgfx::setViewRect(0, 0, 0, width, height);
 		
+		// init timestep
+		engine::timestep_init(context, context.timestep);
 	}
 
 	void update(Context& context) {
@@ -96,32 +122,40 @@ namespace engine {
 		}
 		
 		// render
-		if (context.scene != nullptr) {
-			// timestep
-			static uint64_t _time_ms = 0;
-			const uint64_t _dt_ms = 16;
-			static uint64_t _currenttime_ms = engine::get_scenetime(context);
-			static uint64_t _accumulator = 0;
+		bgfx::touch(0);
+		if (context.scene) {
+			engine::timestep_advance(context, context.timestep);
 
-			const uint64_t newtime = engine::get_scenetime(context);
-			const uint64_t frametime = newtime - _currenttime_ms;
-			_currenttime_ms = newtime;
-
-			_accumulator += frametime;
-
-			while (_accumulator >= _dt_ms) {
+			while (context.timestep.remaining_ticks > 0) {
+				context.timestep.remaining_ticks--;
 				context.scene->tick();
-				_accumulator -= _dt_ms;
-				_time_ms += _dt_ms;
 			}
 
 			context.scene->update();
 		}
+
+		// switch to next scene
+		if (context.next_scene) {
+			// destroy current scene
+			if (context.scene) {
+				context.scene->destroy();
+				delete context.scene;
+				context.scene = nullptr;
+			}
+			
+			context.scene = context.next_scene;
+			context.next_scene = nullptr;
+			engine::timestep_init(context, context.timestep);
+		}
+
+		bgfx::frame(0);
 	}
 
 	void destroy(Context& context) {
+		// cleanup scene
 		set_scene(context, nullptr);
-
+		
+		// cleanup engine
 		bgfx::shutdown();
 		SDL_DestroyWindow(context.window);
 		SDL_Quit();
@@ -129,20 +163,14 @@ namespace engine {
 	}
 
 	void set_scene(Context& context, IScene* newScene) {
-		if (context.scene) {
-			context.scene->destroy();
-			delete context.scene;
-			context.scene = nullptr;
-		}
-
 		if (newScene && newScene->create()) {
-			context.scene = newScene;
-			context.scene->m_context = &context;
+			context.next_scene = newScene;
+			context.next_scene->m_context = &context;
 		}
 	}
 
 	uint64_t get_scenetime(const Context& context) {
-		if (!context.scene->get_createdtime()) return 0;
+		if (!context.scene || !context.scene->get_createdtime()) return 0;
 	
 		return SDL_GetTicks64() - context.scene->get_createdtime();
 	}

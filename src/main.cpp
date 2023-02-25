@@ -15,7 +15,7 @@
 
 #include "engine/engine.hpp"
 #include "engine/iscene.hpp"
-#include "scenes/mage.hpp"
+#include "scenes/intro.hpp"
 
 void main_loop(void* data) {
 	engine::Context* ctx = static_cast<engine::Context*>(data);
@@ -38,7 +38,7 @@ int main() {
 	engine::init(context);
 
 	// scene setup
-	engine::set_scene(context, engine::new_scene<MageScene>(context));
+	engine::set_scene(context, engine::new_scene<IntroScene>(context));
 
 	// main loop
 #if BX_PLATFORM_EMSCRIPTEN

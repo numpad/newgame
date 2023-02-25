@@ -12,11 +12,12 @@ private:
 	const uint64_t m_maxticks = 16 * 60 * 5;
 	virtual bool onCreate() {
 		
+		printf("created introscene\n");
 		return true;
 	}
 
 	virtual void onDestroy() {
-
+		printf("destroyed introscene\n");
 	}
 
 	virtual void onTick() {
@@ -24,12 +25,8 @@ private:
 	}
 
 	virtual void onUpdate() {
-		bgfx::touch(0);
-		
 		bgfx::dbgTextClear();
 		bgfx::dbgTextPrintf(4, 10, 0x0f, "press to skip...");
-
-		bgfx::frame();
 	}
 
 	virtual void onEvent(const SDL_Event& event) {

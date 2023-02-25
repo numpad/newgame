@@ -87,8 +87,8 @@ class MageScene : public IScene {
 		// create player
 		m_player = prefabs::player(m_registry);
 
-		entt::entity enemy = prefabs::base_enemy(m_registry);
-		m_registry.emplace<MoveTowards>(enemy, m_player);
+		//entt::entity enemy = prefabs::base_enemy(m_registry);
+		//m_registry.emplace<MoveTowards>(enemy, m_player);
 
 		for (int x = 0; x < 5; ++x) {
 			for (int y = 0; y < 5; ++y) {
@@ -179,8 +179,6 @@ class MageScene : public IScene {
 	}
 
 	virtual void onUpdate() {
-		bgfx::touch(0);
-		
 		float time = engine::get_scenetime(*m_context) / 1000.0f;
 		float time2 = timeaccu / 1000.0f;
 		bgfx::dbgTextClear();
@@ -215,8 +213,6 @@ class MageScene : public IScene {
 		
 		// systems
 		m_spriterenderer->render();
-
-		bgfx::frame();
 	}
 };
 
