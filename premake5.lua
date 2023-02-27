@@ -4,7 +4,6 @@
 PROJECT_DIR = path.getabsolute('.')
 
 -- toolchain
-require "lib/premake-modules/emscripten"
 require "lib/premake-modules/premake-android-studio/android_studio"
 require "lib/premake-modules/shaderc"
 
@@ -14,7 +13,7 @@ function bxCompatIncludeDirs()
 end
 
 workspace "newgame"
-	configurations { "debug", "release" }
+	configurations { "Debug", "Release" }
 
 	language  "C++"
 	cppdialect "C++17"
@@ -154,6 +153,7 @@ workspace "newgame"
 			path.join(PROJECT_DIR, "lib/glm/include/"),
 			path.join(PROJECT_DIR, "lib/entt/single_include/"),
 			path.join(PROJECT_DIR, "lib/stb/"),
+			path.join(PROJECT_DIR, "lib/sdl2/include/"),
 		}
 
 		files {
