@@ -10,35 +10,41 @@ require "lib/premake-modules/shaderc"
 
 -- helpers
 function bxCompatIncludeDirs()
-	-- TODO: Test for Windows & Mac
-	filter "platforms:linux* or platforms:android*"
-		includedirs { path.join(PROJECT_DIR, "lib/bx/include/compat/linux/") }
-	filter "platforms:win*"
-		includedirs { path.join(PROJECT_DIR, "lib/bx/include/compat/msvc/") }
-	filter "platforms:osx*"
-		includedirs { path.join(PROJECT_DIR, "lib/bx/include/compat/osx/") }
+	includedirs { path.join(PROJECT_DIR, "lib/bx/include/compat/linux/") }
 end
 
 workspace "newgame"
 	configurations { "debug", "release" }
-
-	platforms {
-		"linux64",
-		"wasm",
-		"android",
-		-- win32, win64, osx, ...
-	}
 
 	language  "C++"
 	cppdialect "C++17"
 	-- rtti "Off"
 	-- exceptionhandling "Off"
 	
-	filter "not platforms:android*"
-		location  (path.join(PROJECT_DIR, ""))
-		-- objdir    (path.join(PROJECT_DIR, "bin/"))
-		-- targetdir (path.join(PROJECT_DIR, "bin/"))
+	location  (path.join(PROJECT_DIR, ""))
+	-- objdir    (path.join(PROJECT_DIR, "bin/"))
+	-- targetdir (path.join(PROJECT_DIR, "bin/"))
 	
+	androidabis { "armeabi-v7a", "arm64-v8a", "x86", "x86_64" }
+
+	gradleversion "com.android.tools.build:gradle:7.3.1"
+	androidndkpath "/home/chris/.config/android-studio/ndk-bundle/" -- TODO: fix this
+	androiddependencies {
+		"com.android.support:support-v4:27.1.0",
+	}
+
+	-- gradleproperties {
+	-- 	"org.gradle.jvmargs=-Xmx4608m",
+	-- 	"org.gradle.parallel=true",
+	-- }
+	gradlewrapper {
+		"distributionUrl=https://services.gradle.org/distributions/gradle-7.5.1-bin.zip"
+	}
+	androidrepositories {
+		-- "jcenter()",
+		-- "maven { url 'http://maven.gameanalytics.com/release' }",
+	}
+
 	filter "configurations:debug"
 		defines { "BX_CONFIG_DEBUG=1" }
 		optimize "Debug"
@@ -48,23 +54,13 @@ workspace "newgame"
 		defines { "BX_CONFIG_DEBUG=0", "NDEBUG" }
 		optimize "Full"
 	
-	filter "platforms:wasm"
-		toolset "emcc"
-
-		defines {
-			"EMSCRIPTEN=1",
-			"BGFX_CONFIG_RENDERER_OPENGLES=20",
-		}
-	
-	filter "platforms:android*"
-		
 
 	project "bx"
-		filter "not platforms:android*"
-			kind "StaticLib"
-		filter "platforms:android*"
-			kind "SharedLib"
+		kind "SharedLib"
 		
+		androidsdkversion "28"
+		androidminsdkversion "28"
+
 		files {
 			path.join(PROJECT_DIR, "lib/bx/include/bx/*.h"),
 			path.join(PROJECT_DIR, "lib/bx/include/bx/inline/*.inl"),
@@ -85,10 +81,10 @@ workspace "newgame"
 
 
 	project "bimg"
-		filter "not platforms:android*"
-			kind "StaticLib"
-		filter "platforms:android*"
-			kind "SharedLib"
+		kind "SharedLib"
+		
+		androidsdkversion "28"
+		androidminsdkversion "28"
 
 		files {
 			path.join(PROJECT_DIR, "lib/bimg/include/bimg/*.h"),
@@ -109,10 +105,10 @@ workspace "newgame"
 	
 
 	project "bgfx"
-		filter "not platforms:android*"
-			kind "StaticLib"
-		filter "platforms:android*"
-			kind "SharedLib"
+		kind "SharedLib"
+		
+		androidsdkversion "28"
+		androidminsdkversion "28"
 		
 		files {
 			path.join(PROJECT_DIR, "lib/bgfx/include/bgfx/*.h"),
@@ -139,10 +135,10 @@ workspace "newgame"
 
 
 	project "client"
-		filter "not platforms:android*"
-			kind "StaticLib"
-		filter "platforms:android*"
-			kind "SharedLib"
+		kind "WindowedApp"
+		
+		androidsdkversion "28"
+		androidminsdkversion "28"
 		
 		links { "bgfx", "bimg", "bx" }
 
@@ -162,44 +158,11 @@ workspace "newgame"
 
 		files {
 			path.join(PROJECT_DIR, "src/**.cpp"),
+			path.join(PROJECT_DIR, "lib/sdl2/src/main/android/SDL_android_main.c"),
+			path.join(PROJECT_DIR, "src/_platform/android/main_activity.java"),
 		}
 
-		filter "platforms:linux*"
-			links {
-				"GL", "X11", -- Xrandr?
-				"SDL2", "SDL2_mixer", "SDL2_net",
-			}
+		links { "GLESv2", }
 
-		filter "platforms:wasm"
-			buildoptions { }
-
-			-- TODO: use the same SDL2 headers for every platform
-			includedirs {
-				path.join(PROJECT_DIR, "lib/sdl2/include/"),
-			}
-
-			linkoptions {
-				"-s USE_SDL=2 -s USE_SDL_NET=2 -s USE_SDL_MIXER=2",
-				"--preload-file res",
-				"--shell-file src/_platform/wasm/shell.html",
-				"-s WASM=1", "-s USE_WEBGL2=1", "-s ALLOW_MEMORY_GROWTH=1",
-				"-obin/wasm/client.html",
-			}
-
-		filter "platforms:android*"
-			files {
-				path.join(PROJECT_DIR, "lib/sdl2/src/main/android/SDL_android_main.c"),
-			}
-
-			links {
-				"GLESv2",
-			}
-
-			-- amk_includes {
-			-- 	path.join(PROJECT_DIR, "lib/sdl2/Android.mk"),
-			-- }
-
-			-- amk_sharedlinks {
-			-- 	"SDL2",
-			-- }
+		assetdirs { "res" }
 
