@@ -3,6 +3,7 @@ bin/
 obj/
 Makefile
 *.make
+*.mk
 temp/
 .cache/
 compile_commands.json

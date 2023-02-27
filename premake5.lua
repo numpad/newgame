@@ -5,12 +5,13 @@ PROJECT_DIR = path.getabsolute('.')
 
 -- toolchain
 require "lib/premake-modules/emscripten"
+require "lib/premake-modules/androidmk"
 require "lib/premake-modules/shaderc"
 
 -- helpers
 function bxCompatIncludeDirs()
 	-- TODO: Test for Windows & Mac
-	filter "platforms:linux*"
+	filter "platforms:linux* or platforms:android*"
 		includedirs { path.join(PROJECT_DIR, "lib/bx/include/compat/linux/") }
 	filter "platforms:win*"
 		includedirs { path.join(PROJECT_DIR, "lib/bx/include/compat/msvc/") }
@@ -24,7 +25,8 @@ workspace "newgame"
 	platforms {
 		"linux64",
 		"wasm",
-		-- win32, win64, android, osx, ...
+		"android",
+		-- win32, win64, osx, ...
 	}
 
 	language  "C++"
@@ -53,9 +55,18 @@ workspace "newgame"
 			"BGFX_CONFIG_RENDERER_OPENGLES=20",
 		}
 	
+	filter "platforms:android*"
+		location "android/jni"
+		ndkabi "all"
+		ndkplatform "android-21"
+		-- ndkstl "c++_static"
+	
 
 	project "bx"
-		kind "StaticLib"
+		filter "not platforms:android*"
+			kind "StaticLib"
+		filter "platforms:android*"
+			kind "SharedLib"
 		
 		files {
 			path.join(PROJECT_DIR, "lib/bx/include/bx/*.h"),
@@ -77,7 +88,10 @@ workspace "newgame"
 
 
 	project "bimg"
-		kind "StaticLib"
+		filter "not platforms:android*"
+			kind "StaticLib"
+		filter "platforms:android*"
+			kind "SharedLib"
 
 		files {
 			path.join(PROJECT_DIR, "lib/bimg/include/bimg/*.h"),
@@ -98,7 +112,10 @@ workspace "newgame"
 	
 
 	project "bgfx"
-		kind "StaticLib"
+		filter "not platforms:android*"
+			kind "StaticLib"
+		filter "platforms:android*"
+			kind "SharedLib"
 		
 		files {
 			path.join(PROJECT_DIR, "lib/bgfx/include/bgfx/*.h"),
@@ -125,7 +142,11 @@ workspace "newgame"
 
 
 	project "client"
-		kind "WindowedApp"
+		filter "not platforms:android*"
+			kind "StaticLib"
+		filter "platforms:android*"
+			kind "SharedLib"
+		
 		links { "bgfx", "bimg", "bx" }
 
 		libdirs {
@@ -166,5 +187,22 @@ workspace "newgame"
 				"--shell-file src/_platform/wasm/shell.html",
 				"-s WASM=1", "-s USE_WEBGL2=1", "-s ALLOW_MEMORY_GROWTH=1",
 				"-obin/wasm/client.html",
+			}
+
+		filter "platforms:android*"
+			files {
+				path.join(PROJECT_DIR, "lib/sdl2/src/main/android/SDL_android_main.c"),
+			}
+
+			links {
+				"GLESv2",
+			}
+
+			amk_includes {
+				path.join(PROJECT_DIR, "lib/sdl2/Android.mk"),
+			}
+
+			amk_sharedlinks {
+				"SDL2",
 			}
 
