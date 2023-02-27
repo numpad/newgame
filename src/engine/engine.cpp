@@ -65,6 +65,8 @@ namespace engine {
 		pd.nwh = wmi.info.cocoa.window;
 #elif BX_PLATFORM_EMSCRIPTEN
 		pd.nwh = (void*)"#canvas";
+#elif BX_PLATFORM_ANDROID
+		pd.nwh = wmi.info.android.window;
 #else
 #error "BX_PLATFORM not set!"
 #endif

@@ -5,7 +5,7 @@ PROJECT_DIR = path.getabsolute('.')
 
 -- toolchain
 require "lib/premake-modules/emscripten"
-require "lib/premake-modules/androidmk"
+require "lib/premake-modules/premake-android-studio/android_studio"
 require "lib/premake-modules/shaderc"
 
 -- helpers
@@ -34,9 +34,10 @@ workspace "newgame"
 	-- rtti "Off"
 	-- exceptionhandling "Off"
 	
-	location  (path.join(PROJECT_DIR, ""))
-	-- objdir    (path.join(PROJECT_DIR, "bin/"))
-	-- targetdir (path.join(PROJECT_DIR, "bin/"))
+	filter "not platforms:android*"
+		location  (path.join(PROJECT_DIR, ""))
+		-- objdir    (path.join(PROJECT_DIR, "bin/"))
+		-- targetdir (path.join(PROJECT_DIR, "bin/"))
 	
 	filter "configurations:debug"
 		defines { "BX_CONFIG_DEBUG=1" }
@@ -56,11 +57,7 @@ workspace "newgame"
 		}
 	
 	filter "platforms:android*"
-		location "android/jni"
-		ndkabi "all"
-		ndkplatform "android-21"
-		-- ndkstl "c++_static"
-	
+		
 
 	project "bx"
 		filter "not platforms:android*"
@@ -198,11 +195,11 @@ workspace "newgame"
 				"GLESv2",
 			}
 
-			amk_includes {
-				path.join(PROJECT_DIR, "lib/sdl2/Android.mk"),
-			}
+			-- amk_includes {
+			-- 	path.join(PROJECT_DIR, "lib/sdl2/Android.mk"),
+			-- }
 
-			amk_sharedlinks {
-				"SDL2",
-			}
+			-- amk_sharedlinks {
+			-- 	"SDL2",
+			-- }
 

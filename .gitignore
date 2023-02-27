@@ -3,7 +3,10 @@ bin/
 obj/
 Makefile
 *.make
-*.mk
+*.gradle
+gradle.properties
+gradle/
+.idea/
 temp/
 .cache/
 compile_commands.json
