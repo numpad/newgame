@@ -16,6 +16,7 @@
 #include "engine/engine.hpp"
 #include "engine/iscene.hpp"
 #include "scenes/intro.hpp"
+#include "scenes/intro.hpp"
 
 void main_loop(void* data) {
 	engine::Context* ctx = static_cast<engine::Context*>(data);

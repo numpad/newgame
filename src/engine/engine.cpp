@@ -91,7 +91,6 @@ namespace engine {
 	void update(Context& context) {
 		// handle events
 		for (SDL_Event event; SDL_PollEvent(&event) != 0; ) {
-			
 			bool skipEvent = false;
 
 			switch (event.type) {
@@ -102,9 +101,12 @@ namespace engine {
 				if (event.window.event == SDL_WINDOWEVENT_RESIZED || event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
 					const int width = event.window.data1;
 					const int height = event.window.data2;
-					printf("resize to %dx%d\n", width, height);
 					bgfx::reset(width, height, BGFX_RESET_VSYNC);
 					bgfx::setViewRect(0, 0, 0, width, height);
+				} else if (event.window.event == SDL_WINDOWEVENT_FOCUS_LOST) {
+					
+				} else if (event.window.event == SDL_WINDOWEVENT_FOCUS_GAINED) {
+					
 				}
 				break;
 			case SDL_MOUSEMOTION:
@@ -145,6 +147,8 @@ namespace engine {
 			
 			context.scene = context.next_scene;
 			context.next_scene = nullptr;
+
+			// reset timestep
 			engine::timestep_init(context, context.timestep);
 		}
 

@@ -26,15 +26,24 @@ struct VertexPosSubrectColor {
 bgfx::VertexLayout VertexPosSubrectColor::ms_layout;
 
 static VertexPosSubrectColor s_vertices[] = {
-	{-1.0f,  1.0f, 0.0f,  0.0625f * 1.0f, 0.0625f * 6.0f,  0xff0000ff},
-	{ 1.0f,  1.0f, 0.0f,  0.0625f * 2.0f, 0.0625f * 6.0f,  0xff0000ff},
-	{-1.0f, -1.0f, 0.0f,  0.0625f * 1.0f, 0.0625f * 5.0f,  0xffff0000},
-	{-1.0f, -1.0f, 0.0f,  0.0625f * 1.0f, 0.0625f * 5.0f,  0xffff0000},
-	{ 1.0f,  1.0f, 0.0f,  0.0625f * 2.0f, 0.0625f * 6.0f,  0xff0000ff},
-	{ 1.0f, -1.0f, 0.0f,  0.0625f * 2.0f, 0.0625f * 5.0f,  0xffff0000}
+	/* position           texcoord     color    */
+	{-1.0f,  1.0f, 0.0f,  0.0f, 1.0f,  0xff0000ff},
+	{ 1.0f,  1.0f, 0.0f,  1.0f, 1.0f,  0xff0000ff},
+	{-1.0f, -1.0f, 0.0f,  0.0f, 0.0f,  0xffff0000},
+	{-1.0f, -1.0f, 0.0f,  0.0f, 0.0f,  0xffff0000},
+	{ 1.0f,  1.0f, 0.0f,  1.0f, 1.0f,  0xff0000ff},
+	{ 1.0f, -1.0f, 0.0f,  1.0f, 0.0f,  0xffff0000}
 };
 
 class SpriteRenderSystem {
+private:
+	entt::registry& m_registry;
+	bgfx::VertexBufferHandle m_vbh;
+	bgfx::ProgramHandle m_program;
+	bgfx::TextureHandle m_texture;
+	bgfx::UniformHandle m_utexture;
+	bgfx::UniformHandle m_utexcoords;
+
 public:
 	
 	SpriteRenderSystem(entt::registry& registry) : m_registry{registry} {
@@ -44,12 +53,13 @@ public:
 		m_program = assets::load_program("res/shader/sprite");
 		m_texture = assets::load_texture("res/image/dungeon.png");
 		m_utexture = bgfx::createUniform("u_texture", bgfx::UniformType::Sampler);
-		
+		m_utexcoords = bgfx::createUniform("u_texcoords", bgfx::UniformType::Vec4);
 	}
 
 	~SpriteRenderSystem() {
 		bgfx::destroy(m_texture);
 		bgfx::destroy(m_utexture);
+		bgfx::destroy(m_utexcoords);
 		bgfx::destroy(m_vbh);
 		bgfx::destroy(m_program);
 	}
@@ -65,18 +75,11 @@ public:
 			bgfx::setVertexBuffer(0, m_vbh);
 			bgfx::setState(BGFX_STATE_WRITE_RGB | BGFX_STATE_BLEND_ALPHA);
 			bgfx::setTransform(&transform);
-			bgfx::setTexture(0, m_utexture, m_texture,
-				BGFX_SAMPLER_MIN_POINT | BGFX_SAMPLER_MAG_POINT | BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP);
+			bgfx::setUniform(m_utexcoords, &sprite.rect);
+			bgfx::setTexture(0, m_utexture, m_texture, BGFX_SAMPLER_MIN_POINT | BGFX_SAMPLER_MAG_POINT | BGFX_SAMPLER_U_CLAMP | BGFX_SAMPLER_V_CLAMP);
 			bgfx::submit(0, m_program);
 		});
 	}
-
-private:
-	entt::registry& m_registry;
-	bgfx::VertexBufferHandle m_vbh;
-	bgfx::ProgramHandle m_program;
-	bgfx::TextureHandle m_texture;
-	bgfx::UniformHandle m_utexture;
 
 };
 

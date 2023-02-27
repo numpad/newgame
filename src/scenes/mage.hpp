@@ -188,6 +188,10 @@ class MageScene : public IScene {
 		const Player& player = m_registry.get<const Player>(m_player);
 		bgfx::dbgTextPrintf(1, 4, 0x0f, "- Player -");
 		bgfx::dbgTextPrintf(1, 5, 0x0f, "Mana: %g", player.mana);
+
+		int w, h;
+		SDL_GetWindowSize(m_context->window, &w, &h);
+		bgfx::dbgTextPrintf(3, 7, 0x0f, "Window %dx%d\n", w, h);
 		
 		// render
 		int width, height;
