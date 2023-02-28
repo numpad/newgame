@@ -60,6 +60,8 @@ workspace "newgame"
 		androidsdkversion "28"
 		androidminsdkversion "28"
 
+		links { "log", }
+
 		files {
 			path.join(PROJECT_DIR, "lib/bx/include/bx/*.h"),
 			path.join(PROJECT_DIR, "lib/bx/include/bx/inline/*.inl"),
@@ -84,6 +86,11 @@ workspace "newgame"
 		
 		androidsdkversion "28"
 		androidminsdkversion "28"
+		androidprojectdependencies {
+			"bx",
+		}
+
+		links { "bx" }
 
 		files {
 			path.join(PROJECT_DIR, "lib/bimg/include/bimg/*.h"),
@@ -108,6 +115,11 @@ workspace "newgame"
 		
 		androidsdkversion "28"
 		androidminsdkversion "28"
+		androidprojectdependencies {
+			"bx", "bimg",
+		}
+
+		links { "bx", "bimg", "EGL", "GLESv2" }
 		
 		files {
 			path.join(PROJECT_DIR, "lib/bgfx/include/bgfx/*.h"),
@@ -134,12 +146,15 @@ workspace "newgame"
 
 
 	project "client"
-		kind "WindowedApp"
+		kind "ConsoleApp"
 		
 		androidsdkversion "28"
 		androidminsdkversion "28"
+		androidprojectdependencies {
+			"bx", "bimg", "bgfx",
+		}
 		
-		links { "bgfx", "bimg", "bx" }
+		links { "bgfx", "bimg", "bx", "EGL", "GLESv2", }
 
 		libdirs {
 			path.join(PROJECT_DIR, "lib/bin/"),
@@ -161,8 +176,6 @@ workspace "newgame"
 			path.join(PROJECT_DIR, "lib/sdl2/src/main/android/SDL_android_main.c"),
 			path.join(PROJECT_DIR, "src/_platform/android/main_activity.java"),
 		}
-
-		links { "GLESv2", }
 
 		assetdirs { "res" }
 
