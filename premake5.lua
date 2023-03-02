@@ -24,7 +24,7 @@ workspace "newgame"
 	-- objdir    (path.join(PROJECT_DIR, "bin/"))
 	-- targetdir (path.join(PROJECT_DIR, "bin/"))
 	
-	androidabis { "armeabi-v7a", "arm64-v8a", "x86", "x86_64" }
+	androidabis { "armeabi-v7a" } --, "arm64-v8a", "x86", "x86_64" }
 
 	gradleversion "com.android.tools.build:gradle:7.3.1"
 	androidndkpath "/home/chris/.config/android-studio/ndk-bundle/" -- TODO: fix this
@@ -44,6 +44,10 @@ workspace "newgame"
 		-- "maven { url 'http://maven.gameanalytics.com/release' }",
 	}
 
+	defines {
+		"BGFX_SHARED_LIB_BUILD=1",
+	}
+
 	filter "configurations:debug"
 		defines { "BX_CONFIG_DEBUG=1" }
 		optimize "Debug"
@@ -55,7 +59,7 @@ workspace "newgame"
 	
 
 	project "bx"
-		kind "SharedLib"
+		kind "StaticLib"
 		
 		androidsdkversion "28"
 		androidminsdkversion "28"
@@ -82,7 +86,7 @@ workspace "newgame"
 
 
 	project "bimg"
-		kind "SharedLib"
+		kind "StaticLib"
 		
 		androidsdkversion "28"
 		androidminsdkversion "28"
@@ -111,7 +115,7 @@ workspace "newgame"
 	
 
 	project "bgfx"
-		kind "SharedLib"
+		kind "StaticLib"
 		
 		androidsdkversion "28"
 		androidminsdkversion "28"
@@ -146,7 +150,7 @@ workspace "newgame"
 
 
 	project "client"
-		kind "ConsoleApp"
+		kind "SharedLib" -- or ConsoleApp
 		
 		androidsdkversion "28"
 		androidminsdkversion "28"

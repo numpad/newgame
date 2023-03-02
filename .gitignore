@@ -4,8 +4,9 @@ obj/
 Makefile
 *.make
 *.gradle
-gradle.properties
 gradle/
+gradle.properties
+local.properties
 .idea/
 temp/
 .cache/
