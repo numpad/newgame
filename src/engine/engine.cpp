@@ -14,11 +14,10 @@
 namespace engine {
 	
 	void timestep_init(const Context& context, Timestep& timestep) {
-		timestep.time = 0;
-		timestep.dt = 16;
-		printf("initialized timestep\n");
+		timestep.time = 0.0f;
+		timestep.dt = 1.0f / 60.0f;
 		timestep.currenttime = engine::get_scenetime(context);
-		timestep.accumulator = 0;
+		timestep.accumulator = 0.0f;
 		timestep.remaining_ticks = 0;
 	}
 
@@ -27,7 +26,7 @@ namespace engine {
 		const uint64_t frametime = newtime - timestep.currenttime;
 		timestep.currenttime = newtime;
 
-		timestep.accumulator += frametime;
+		timestep.accumulator += frametime / 1000.0f;
 		
 		while (timestep.accumulator >= timestep.dt) {
 			timestep.remaining_ticks++;
@@ -43,7 +42,7 @@ namespace engine {
 			printf("failed initializing SDL2: %s\n", SDL_GetError());
 			return;
 		}
-		context.window = SDL_CreateWindow("main", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 800, 600, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+		context.window = SDL_CreateWindow("main", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 850, 450, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 
 #if !BX_PLATFORM_EMSCRIPTEN
 		SDL_SysWMinfo wmi;

@@ -5,6 +5,7 @@
 #include <bx/bx.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/rotate_vector.hpp>
 #include <entt/entt.hpp>
 #include "engine/engine.hpp"
 #include "engine/iscene.hpp"
@@ -14,6 +15,7 @@
 #include "ecs/systems/DamageSystem.hpp"
 #include "ecs/systems/ItemCollectSystem.hpp"
 #include "ecs/systems/DeleteSystem.hpp"
+#include "ecs/systems/AttackSystem.hpp"
 #include "ecs/prefabs.hpp"
 #include "ecs/components/velocity.hpp"
 #include "ecs/components/player.hpp"
@@ -54,6 +56,7 @@ class MageScene : public IScene {
 	entt::registry m_registry;
 	SpriteRenderSystem* m_spriterenderer;
 	EnemyMoveSystem* m_enemymover;
+	AttackSystem* m_attacksystem;
 	DamageSystem* m_damagesystem;
 	ItemCollectSystem* m_itemcollectsystem;
 	DeleteSystem* m_deletesystem;
@@ -63,7 +66,7 @@ class MageScene : public IScene {
 	// general
 	bool m_dragging = false;
 	glm::vec2 m_dragstart, m_dragcurrent;
-	uint64_t timeaccu = 0;
+	float timeaccu = 0.0f;
 
 	virtual bool onCreate() {
 		// init old rendering
@@ -80,30 +83,30 @@ class MageScene : public IScene {
 		// init systems
 		m_spriterenderer = new SpriteRenderSystem(m_registry);
 		m_enemymover = new EnemyMoveSystem(m_registry);
+		m_attacksystem = new AttackSystem(m_registry);
 		m_damagesystem = new DamageSystem(m_registry);
 		m_itemcollectsystem = new ItemCollectSystem(m_registry);
 		m_deletesystem = new DeleteSystem(m_registry);
 
 		// create player
 		m_player = prefabs::player(m_registry);
-
-		//entt::entity enemy = prefabs::base_enemy(m_registry);
-		//m_registry.emplace<MoveTowards>(enemy, m_player);
-
-		for (int x = 0; x < 5; ++x) {
-			for (int y = 0; y < 5; ++y) {
-				entt::entity item = prefabs::item_mana(m_registry);
-				m_registry.replace<Position>(item, glm::vec2(-80.0f + x * 40.0f, -80.0f + y * 40.0f));
-			}
+		
+		for (int i = 0; i < 7; ++i) {
+			entt::entity enemy = prefabs::base_enemy(m_registry, glm::vec2(float(i) * 50.0f, 400.0f));
+			m_registry.emplace<MoveTowards>(enemy, m_player, 1.5f);
+			enemy = prefabs::base_enemy(m_registry, glm::vec2(float(i) * 50.0f, 450.0f));
+			m_registry.emplace<MoveTowards>(enemy, m_player, 1.5f);
+			enemy = prefabs::base_enemy(m_registry, glm::vec2(float(i) * 50.0f, 500.0f));
+			m_registry.emplace<MoveTowards>(enemy, m_player, 1.5f);
 		}
 
-		
 		return true;
 	}
 	
 	virtual void onDestroy() {
 		delete m_spriterenderer;
 		delete m_enemymover;
+		delete m_attacksystem;
 		delete m_damagesystem;
 		delete m_itemcollectsystem;
 		delete m_deletesystem;
@@ -157,22 +160,32 @@ class MageScene : public IScene {
 	}
 
 	virtual void onTick() {
-		timeaccu += 16;
+		timeaccu += 1.0f / 60.0f;
 		
+		Player* player = m_registry.try_get<Player>(m_player);
+		Position* player_pos = m_registry.try_get<Position>(m_player);
+
 		const glm::vec2 dragdir = (m_dragcurrent - m_dragstart) * glm::vec2(1.0f, -1.0f);
 		if (m_dragging && glm::length(dragdir) > 0.05f) {
 			const glm::vec2 drag = glm::normalize(dragdir) * 0.01f;
 
 			// move player
-			Position* player_pos = m_registry.try_get<Position>(m_player);
-			Player* player = m_registry.try_get<Player>(m_player);
 			if (player_pos) {
 				player_pos->pos += glm::normalize(dragdir) * player->move_speed;
 			}
 		}
-		
+
+		static glm::vec2 dir = glm::vec2(1.0f, 0.0f);
+		if (glm::mod(timeaccu, 1.2f) > 1.2f - (1.0f / 60.0f)) {
+			if (m_dragging && glm::length(dragdir) > 0.05f) {
+				dir = glm::normalize(dragdir);
+			}
+			prefabs::attack_swing(m_registry, player_pos->pos, dir);
+		}
+
 		// tick systems
 		m_enemymover->tick();
+		m_attacksystem->tick();
 		m_damagesystem->tick();
 		m_itemcollectsystem->tick();
 		m_deletesystem->tick();
@@ -180,7 +193,7 @@ class MageScene : public IScene {
 
 	virtual void onUpdate() {
 		float time = engine::get_scenetime(*m_context) / 1000.0f;
-		float time2 = timeaccu / 1000.0f;
+		float time2 = timeaccu;
 		bgfx::dbgTextClear();
 		bgfx::dbgTextPrintf(1, 1, 0x0f, "sys: %g", time);
 		bgfx::dbgTextPrintf(1, 2, 0x0f, " dt: %g", time2);
@@ -192,6 +205,8 @@ class MageScene : public IScene {
 		int w, h;
 		SDL_GetWindowSize(m_context->window, &w, &h);
 		bgfx::dbgTextPrintf(3, 7, 0x0f, "Window %dx%d\n", w, h);
+		SDL_GetRendererOutputSize(SDL_GetRenderer(m_context->window), &w, &h);
+		bgfx::dbgTextPrintf(3, 8, 0x0f, "Renderer %dx%d\n", w, h);
 		
 		// render
 		int width, height;

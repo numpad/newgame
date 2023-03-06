@@ -67,10 +67,13 @@ public:
 	void render() const {
 
 		m_registry.view<const Position, const Sprite>().each([&](const Position& pos, const Sprite& sprite) {
-			glm::mat4 transform = glm::scale(
-				glm::translate(glm::mat4(1.0f), glm::vec3(pos.pos, 0.0f)),
+			glm::mat4 transform = glm::translate(glm::scale(
+				glm::rotate(
+					glm::translate(glm::mat4(1.0f), glm::vec3(pos.pos, 0.0f)),
+					sprite.angle, glm::vec3(0.0f, 0.0f, 1.0f)
+				),
 				glm::vec3(sprite.size.x, sprite.size.y, 0.0f)
-			);
+			), glm::vec3(sprite.offset, 0.0f));
 			
 			bgfx::setVertexBuffer(0, m_vbh);
 			bgfx::setState(BGFX_STATE_WRITE_RGB | BGFX_STATE_BLEND_ALPHA);

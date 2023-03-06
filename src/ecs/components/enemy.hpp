@@ -1,7 +1,7 @@
 #pragma once
 
 struct Enemy {
-	int hp;
-	int max_hp;
+	float hp;
+	float max_hp;
 };
 

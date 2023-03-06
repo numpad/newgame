@@ -4,5 +4,6 @@
 
 struct MoveTowards {
 	entt::entity target;
+	float speed;
 };
 

@@ -1,11 +1,14 @@
 #pragma once
 
+#include <glm/glm.hpp>
+#include <glm/gtx/norm.hpp>
 #include <entt/entt.hpp>
 #include "ecs/components/position.hpp"
 #include "ecs/components/sprite.hpp"
 #include "ecs/components/player.hpp"
 #include "ecs/components/enemy.hpp"
 #include "ecs/components/damage_zone.hpp"
+#include "ecs/components/deletable.hpp"
 
 class DamageSystem {
 private:
@@ -29,16 +32,22 @@ public:
 				Player* player = m_registry.try_get<Player>(targetEntity);
 				Enemy* enemy = m_registry.try_get<Enemy>(targetEntity);
 
-
+				const float distance2 = glm::distance2(targetPos.pos, zonePos.pos);
 				if (player && (zone.layer & DamageLayer::PLAYER)) {
-					if (glm::length(targetPos.pos - zonePos.pos) <= zone.radius) {
-						printf("player: ouch\n");
+					if (distance2 <= glm::pow(zone.radius, 2.0f)) {
+						// printf("player: ouch\n");
 					}
 				}
 
 				if (enemy && (zone.layer & DamageLayer::ENEMY)) {
-					if (glm::length(targetPos.pos - zonePos.pos) <= zone.radius) {
-						printf("enemy: oof\n");
+					if (distance2 <= glm::pow(zone.radius, 2.0f)) {
+						printf("enemy: %g/%g\n", enemy->hp, enemy->max_hp);
+						enemy->hp -= zone.dps * (1.0f / 60.0f); // FIXME: engine timestep FPS
+
+						if (enemy->hp <= 0.0f) {
+							enemy->hp = 0.0f;
+							m_registry.emplace_or_replace<Deletable>(targetEntity);
+						}
 					}
 				}
 			}
