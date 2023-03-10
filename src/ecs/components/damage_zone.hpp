@@ -1,5 +1,8 @@
 #pragma once
 
+#include <unordered_set>
+#include <entt/entt.hpp>
+
 enum DamageLayer {
 	PLAYER = 1 << 0,
 	ENEMY  = 1 << 1
@@ -17,5 +20,7 @@ struct DamageZone {
 	float dps;
 	float radius;
 	DamageLayer layer;
+	std::unordered_set<entt::entity> entities_hit;
+	int tickinterval;
 };
 

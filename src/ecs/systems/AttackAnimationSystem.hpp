@@ -7,13 +7,13 @@
 #include "ecs/components/sprite.hpp"
 #include "ecs/components/deletable.hpp"
 
-class AttackSystem {
+class AttackAnimationSystem {
 private:
 	entt::registry& m_registry;
 
 public:
 
-	AttackSystem(entt::registry& registry) : m_registry{registry} {
+	AttackAnimationSystem(entt::registry& registry) : m_registry{registry} {
 
 	}
 

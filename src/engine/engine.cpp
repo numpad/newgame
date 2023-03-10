@@ -42,7 +42,7 @@ namespace engine {
 			printf("failed initializing SDL2: %s\n", SDL_GetError());
 			return;
 		}
-		context.window = SDL_CreateWindow("main", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 850, 450, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+		context.window = SDL_CreateWindow("main", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 490, 800, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 
 #if !BX_PLATFORM_EMSCRIPTEN
 		SDL_SysWMinfo wmi;

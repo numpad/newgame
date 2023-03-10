@@ -15,7 +15,7 @@
 #include "ecs/systems/DamageSystem.hpp"
 #include "ecs/systems/ItemCollectSystem.hpp"
 #include "ecs/systems/DeleteSystem.hpp"
-#include "ecs/systems/AttackSystem.hpp"
+#include "ecs/systems/AttackAnimationSystem.hpp"
 #include "ecs/prefabs.hpp"
 #include "ecs/components/velocity.hpp"
 #include "ecs/components/player.hpp"
@@ -56,7 +56,7 @@ class MageScene : public IScene {
 	entt::registry m_registry;
 	SpriteRenderSystem* m_spriterenderer;
 	EnemyMoveSystem* m_enemymover;
-	AttackSystem* m_attacksystem;
+	AttackAnimationSystem* m_attackanimationsystem;
 	DamageSystem* m_damagesystem;
 	ItemCollectSystem* m_itemcollectsystem;
 	DeleteSystem* m_deletesystem;
@@ -83,7 +83,7 @@ class MageScene : public IScene {
 		// init systems
 		m_spriterenderer = new SpriteRenderSystem(m_registry);
 		m_enemymover = new EnemyMoveSystem(m_registry);
-		m_attacksystem = new AttackSystem(m_registry);
+		m_attackanimationsystem = new AttackAnimationSystem(m_registry);
 		m_damagesystem = new DamageSystem(m_registry);
 		m_itemcollectsystem = new ItemCollectSystem(m_registry);
 		m_deletesystem = new DeleteSystem(m_registry);
@@ -106,7 +106,7 @@ class MageScene : public IScene {
 	virtual void onDestroy() {
 		delete m_spriterenderer;
 		delete m_enemymover;
-		delete m_attacksystem;
+		delete m_attackanimationsystem;
 		delete m_damagesystem;
 		delete m_itemcollectsystem;
 		delete m_deletesystem;
@@ -182,11 +182,15 @@ class MageScene : public IScene {
 			}
 			prefabs::attack_swing(m_registry, player_pos->pos, dir);
 		}
+		if (glm::mod(timeaccu, 6.0f) > 6.0f - (1.0f / 60.0f)) {
+			prefabs::attack_lavazone(m_registry, player_pos->pos);
+		}
 
 		// tick systems
 		m_enemymover->tick();
-		m_attacksystem->tick();
+		m_attackanimationsystem->tick();
 		m_damagesystem->tick();
+		m_spriterenderer->tick();
 		m_itemcollectsystem->tick();
 		m_deletesystem->tick();
 	}
