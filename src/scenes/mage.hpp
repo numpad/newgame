@@ -11,6 +11,7 @@
 #include "engine/iscene.hpp"
 #include "engine/assets.hpp"
 #include "ecs/systems/SpriteRenderSystem.hpp"
+#include "ecs/systems/EnemySpawnSystem.hpp"
 #include "ecs/systems/EnemyMoveSystem.hpp"
 #include "ecs/systems/DamageSystem.hpp"
 #include "ecs/systems/ItemCollectSystem.hpp"
@@ -54,6 +55,7 @@ class MageScene : public IScene {
 
 	// ecs
 	entt::registry m_registry;
+	EnemySpawnSystem* m_enemyspawner;
 	SpriteRenderSystem* m_spriterenderer;
 	EnemyMoveSystem* m_enemymover;
 	AttackAnimationSystem* m_attackanimationsystem;
@@ -81,6 +83,7 @@ class MageScene : public IScene {
 		m_bgOffsetU = bgfx::createUniform("u_offset", bgfx::UniformType::Vec4);
 
 		// init systems
+		m_enemyspawner = new EnemySpawnSystem(m_registry);
 		m_spriterenderer = new SpriteRenderSystem(m_registry);
 		m_enemymover = new EnemyMoveSystem(m_registry);
 		m_attackanimationsystem = new AttackAnimationSystem(m_registry);
@@ -92,18 +95,16 @@ class MageScene : public IScene {
 		m_player = prefabs::player(m_registry);
 		
 		for (int i = 0; i < 7; ++i) {
-			entt::entity enemy = prefabs::base_enemy(m_registry, glm::vec2(float(i) * 50.0f, 400.0f));
-			m_registry.emplace<MoveTowards>(enemy, m_player, 1.5f);
-			enemy = prefabs::base_enemy(m_registry, glm::vec2(float(i) * 50.0f, 450.0f));
-			m_registry.emplace<MoveTowards>(enemy, m_player, 1.5f);
-			enemy = prefabs::base_enemy(m_registry, glm::vec2(float(i) * 50.0f, 500.0f));
-			m_registry.emplace<MoveTowards>(enemy, m_player, 1.5f);
+			prefabs::base_enemy(m_registry, glm::vec2(float(i) * 50.0f, 400.0f), m_player);
+			prefabs::base_enemy(m_registry, glm::vec2(float(i) * 50.0f, 450.0f), m_player);
+			prefabs::base_enemy(m_registry, glm::vec2(float(i) * 50.0f, 500.0f), m_player);
 		}
 
 		return true;
 	}
 	
 	virtual void onDestroy() {
+		delete m_enemyspawner;
 		delete m_spriterenderer;
 		delete m_enemymover;
 		delete m_attackanimationsystem;
@@ -187,6 +188,7 @@ class MageScene : public IScene {
 		}
 
 		// tick systems
+		m_enemyspawner->tick();
 		m_enemymover->tick();
 		m_attackanimationsystem->tick();
 		m_damagesystem->tick();
@@ -219,9 +221,9 @@ class MageScene : public IScene {
 		
 		// matrices
 		const Position* player_pos = m_registry.try_get<Position>(m_player);
-		glm::mat4 proj = glm::ortho(-width * 0.5f, width * 0.5f, -height * 0.5f, height * 0.5f, -1.0f, 1.0f);
+		glm::mat4 proj = glm::ortho(-width * 0.5f, width * 0.5f, -height * 0.5f, height * 0.5f, -1.1f, 1.1f);
 		glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(-player_pos->pos, 0.0f));
-		glm::mat4 model = glm::mat4(1.0f);
+		glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 		bgfx::setViewTransform(0, &view, &proj);
 		bgfx::setTransform(&model);
 
@@ -229,7 +231,7 @@ class MageScene : public IScene {
 		const glm::vec2 offset = -/*glm::fract*/(player_pos->pos * 0.5f) * 2.0f;
 
 		bgfx::setUniform(m_bgOffsetU, &offset);
-		bgfx::setState(BGFX_STATE_WRITE_RGB); // and more?
+		bgfx::setState(BGFX_STATE_WRITE_RGB | BGFX_STATE_DEPTH_TEST_ALWAYS); // and more?
 		bgfx::setVertexBuffer(0, m_vbh);
 		bgfx::setTexture(0, m_bgTextureU, m_bgTexture, BGFX_SAMPLER_MIN_ANISOTROPIC | BGFX_SAMPLER_MAG_ANISOTROPIC);
 		bgfx::submit(0, m_program);

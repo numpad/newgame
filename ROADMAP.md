@@ -18,85 +18,85 @@ Inside [Versions](#Versions) you'll find more "changelog"-style features, either
  - Attacks
    * Sword Rain. Shoots swords from the sky, one by one, sticking them into the ground.
  - Attack Types
-   * Magic Arrow
+   * [ ] Magic Arrow
      - Spawn at player
      - Move to enemy
 	 - Damage 1 target once
-   * Fireball
+   * [ ] Fireball
      - Spawn at player
      - Move to enemy
 	 - Damage 1 target once / Damage targets in area once
-   * Lightning
+   * [ ] Lightning
      - Spawn at enemy
 	 - Stay
 	 - Damage 1 target once
-   * Meteor
+   * [ ] Meteor
      - Spawn at random position
 	 - Stay
 	 - Damage all targets in area once
-   * Cyclone
+   * [ ] Cyclone
      - Spawn at random position
 	 - Move random walk
 	 - Damage targets in area over time
-   * Electric Shock
+   * [ ] Electric Shock
      - Spawn at player
 	 - Connect to enemy
 	 - Damage 1 target once / Damage targets in area once
-   * Energy Bolt
+   * [ ] Energy Bolt
      - Spawn at player
 	 - Move random direction
 	 - Damage targets in area once / Damage over time
-   * Incineration
+   * [ ] Incineration
      - Spawn at player
 	 - Move with player position and rotation
 	 - Damage targets in area over time
-   * Blizzard
+   * [ ] Blizzard
      - Spawn at random position
 	 - Stay
 	 - Damage targets in area over time
-   * Tsunami Wave
+   * [ ] Tsunami Wave
      - Spawn at fixed position
 	 - Move fixed direction
 	 - Damage targets in area over time
-   * Spirit
+   * [ ] Spirit
      - Spawn at player
 	 - Move to enemy
 	 - Damage 1 target once
-   * Sattelite
+   * [ ] Sattelite
      - Spawn at player offset
 	 - Move rotate around player
 	 - Damage targets once with reset cooldown
-   * Arcane Ray
+   * [ ] Arcane Ray
      - Spawn at player
 	 - Move with player
 	 - Damage targets in area over time
-   * Electric Zone
+   * [ ] Electric Zone
      - Spawn at player
 	 - Move with player
 	 - Damage targets in area over time
-   * Frost Nova
+   * [ ] Frost Nova
      - Spawn at player
 	 - Move with player
 	 - Damage targets in area once
-   * Lava Zone
+   * [ ] Lava Zone
      - Spawn at random position
 	 - Stay
 	 - Damage targets in area over time
-   * Shield
+   * [ ] Shield
      - Spawn at player
 	 - Move with player
 	 - ?
-   * Cloaking
+   * [ ] Cloaking
      - ?
-   * Magic Circle
+   * [ ] Magic Circle
      - Spawn at player
 	 - Move with player
 	 - ?
-   * Armageddon
+   * [ ] Armageddon
      - Spawn
 	 - 
 	 - Damage all enemies once
-   * Flash Shock
+   * [ ] Flash Shock
      - Spawn at player
 	 - Stay
 	 - Damage targets in area once

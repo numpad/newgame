@@ -80,7 +80,7 @@ namespace engine {
 		init.platformData = pd;
 		bgfx::init(init);
 		bgfx::setDebug(BGFX_DEBUG_TEXT);
-		bgfx::setViewClear(0, BGFX_CLEAR_COLOR, 0x333333ff, 1.0f, 0);
+		bgfx::setViewClear(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x333333ff, 1.0f, 0);
 		bgfx::setViewRect(0, 0, 0, width, height);
 		
 		// init timestep

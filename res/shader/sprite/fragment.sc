@@ -7,6 +7,8 @@ uniform vec4 u_damageflash;
 
 void main() {
   vec4 color = texture2D(u_texture, v_texcoord0);
+  if (color.a < 0.9) discard;
+
   color.rgb = mix(color.rgb, vec3_splat(1.0), u_damageflash.x);
   gl_FragColor = color;
 }

@@ -51,7 +51,7 @@ public:
 
 		m_vbh = bgfx::createVertexBuffer(bgfx::makeRef(s_vertices, sizeof(s_vertices)), VertexPosSubrectColor::ms_layoutSprite);
 		m_program = assets::load_program("res/shader/sprite");
-		m_texture = assets::load_texture("res/image/dungeon.png");
+		m_texture = assets::load_texture("res/image/effects/attacks.png");
 		m_utexture = bgfx::createUniform("u_texture", bgfx::UniformType::Sampler);
 		m_utexcoords = bgfx::createUniform("u_texcoords", bgfx::UniformType::Vec4);
 		m_udamageflash = bgfx::createUniform("u_damageflash", bgfx::UniformType::Vec4);
@@ -82,7 +82,7 @@ public:
 		m_registry.view<const Position, const Sprite>().each([&](const Position& pos, const Sprite& sprite) {
 			glm::mat4 transform = glm::translate(glm::scale(
 				glm::rotate(
-					glm::translate(glm::mat4(1.0f), glm::vec3(pos.pos, 0.0f)),
+					glm::translate(glm::mat4(1.0f), glm::vec3(pos.pos.x, pos.pos.y, sprite.zindex)),
 					sprite.angle, glm::vec3(0.0f, 0.0f, 1.0f)
 				),
 				glm::vec3(sprite.size.x, sprite.size.y, 0.0f)
@@ -93,7 +93,7 @@ public:
 			damageflash.x = bx::easeOutExpo(sprite.damageflash.x);
 
 			bgfx::setVertexBuffer(0, m_vbh);
-			bgfx::setState(BGFX_STATE_WRITE_RGB | BGFX_STATE_BLEND_ALPHA);
+			bgfx::setState(BGFX_STATE_WRITE_RGB | BGFX_STATE_BLEND_ALPHA | BGFX_STATE_WRITE_Z | BGFX_STATE_DEPTH_TEST_LEQUAL);
 			bgfx::setTransform(&transform);
 			bgfx::setUniform(m_utexcoords, &sprite.rect);
 			bgfx::setUniform(m_udamageflash, &damageflash);

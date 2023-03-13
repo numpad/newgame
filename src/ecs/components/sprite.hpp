@@ -8,5 +8,6 @@ struct Sprite {
 	float angle;
 	glm::vec2 offset;
 	glm::vec4 damageflash;
+	float zindex;
 };
 
